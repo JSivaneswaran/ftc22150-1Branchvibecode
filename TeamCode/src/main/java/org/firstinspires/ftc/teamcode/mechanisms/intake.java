@@ -10,15 +10,14 @@ public class intake {
     private DcMotor intakeMotor;
 
     public void init(HardwareMap hardwareMap) {
-        intakeMotor = hardwareMap.get(DcMotor.class, "intake");
-
-        intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        intakeMotor = hardwareMap.get(DcMotor.class, "mainOrbitor");
+        intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        intakeMotor.setDirection(DcMotor.Direction.REVERSE);
     }
 
-    public void setPower(double power) {
-        intakeMotor.setPower(power);
+    public void powerSet(double triggerOutput) {
+        intakeMotor.setPower(0.5 * triggerOutput);
     }
 
 }
