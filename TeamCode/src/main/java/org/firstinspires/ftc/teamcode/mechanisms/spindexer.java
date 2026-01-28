@@ -1,30 +1,31 @@
 package org.firstinspires.ftc.teamcode.mechanisms;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class spindexer {
-    private DcMotor spindexerMotor;
-    private final int[] tickCounts = {0,128,256,384,512};
-    private int currentModule = 0;
+    private DcMotorEx spindexerMotor;
+    private double one_rev = 384.5;
 
     public void init(HardwareMap hardwareMap){
-        spindexerMotor = hardwareMap.get(DcMotor.class, "mainIntake");
+        spindexerMotor = hardwareMap.get(DcMotorEx.class, "mainIntake");
         spindexerMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         spindexerMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
-    public void rotate(int numRotations){
-        int newPosition = tickCounts[currentModule+numRotations];
-        //leftover = getTickCount() + module * tickCount + leftover - newPosition;
+    public int rotate(int numRotations, int currentPosition){
+        int newPosition = (int) (numRotations * one_rev)/3 + currentPosition;
         spindexerMotor.setTargetPosition(newPosition);
+        spindexerMotor.setTargetPositionTolerance(3);
         spindexerMotor.setPower(0.2);
         spindexerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         while(spindexerMotor.isBusy()){
             //stall time
         }
         spindexerMotor.setPower(0);
-        currentModule++;
+
+        return newPosition;
     }
 
     public void resetRotation(){
@@ -34,20 +35,20 @@ public class spindexer {
         while(spindexerMotor.isBusy()){
             //stall time
         }
+        spindexerMotor.setPower(0);
+    }
 
-        if(spindexerMotor.getCurrentPosition() != 0){
-            spindexerMotor.setTargetPosition(0);
-            spindexerMotor.setPower(0.1);
-            spindexerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        }
+    public void shoot(){
+        spindexerMotor.setTargetPosition(-128);
+        spindexerMotor.setPower(0.2);
+        spindexerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         while(spindexerMotor.isBusy()){
             //stall time
         }
-        currentModule = 0;
+
         spindexerMotor.setPower(0);
     }
     public void resetEncoder(){
-        currentModule = 0;
         spindexerMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
     public int getTickCount() {
