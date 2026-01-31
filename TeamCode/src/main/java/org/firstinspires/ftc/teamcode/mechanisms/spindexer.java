@@ -1,14 +1,14 @@
 package org.firstinspires.ftc.teamcode.mechanisms;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad1;
-
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class spindexer {
     private DcMotorEx spindexerMotor;
     private double one_rev = 384.5;
+
 
     public void init(HardwareMap hardwareMap){
         spindexerMotor = hardwareMap.get(DcMotorEx.class, "mainIntake");
@@ -23,36 +23,27 @@ public class spindexer {
         spindexerMotor.setPower(0.2);
         spindexerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while(spindexerMotor.isBusy()){
-            if(gamepad1.yWasPressed()){
-                rotateBack(currentPosition);
-                break;
-            }
-        }
-        spindexerMotor.setPower(0);
-
         return newPosition;
     }
 
-    public void rotateBack(int rotateBackPos){
-        spindexerMotor.setTargetPosition(rotateBackPos);
-        spindexerMotor.setTargetPositionTolerance(1);
-        spindexerMotor.setPower(0.05);
-        spindexerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-    }
-
-
-    public void resetRotation(){
+    public int reset(){
         spindexerMotor.setTargetPosition(0);
-        spindexerMotor.setPower(0.3);
+        spindexerMotor.setPower(0.1);
         spindexerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        while(spindexerMotor.isBusy()){
-            if(gamepad1.yWasPressed()){
-                break;
-            }
+        return 0;
+    }
+    public int resetRotation(int currentPos){
+        int tick = getTickCount()/128 * 128;
+        int unstuckPos = 0;
+        if(getTickCount() < currentPos){
+            unstuckPos = tick;
+        }else{
+            unstuckPos = tick + 128;
         }
-        spindexerMotor.setPower(0);
+        spindexerMotor.setTargetPosition(unstuckPos);
+        spindexerMotor.setPower(0.1);
+        spindexerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        return unstuckPos;
     }
 
     public void shoot(){
@@ -60,16 +51,17 @@ public class spindexer {
         spindexerMotor.setPower(0.5);
         spindexerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while(spindexerMotor.isBusy()){
-            //stall time
-            if(gamepad1.yWasPressed()){
-                rotateBack(getTickCount() + 100);
-                break;
-            }
+//        while(spindexerMotor.isBusy()){
+//            //stall time
+//            if(gamepad1.yWasPressed()){
+//                //rotateBack(getTickCount() + 100);
+//                telemetry.addLine("came here");
+//                break;
+//            }
+//
+//        }
 
-        }
-
-        spindexerMotor.setPower(0);
+        //spindexerMotor.setPower(0);
     }
     public void resetEncoder(){
         spindexerMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
