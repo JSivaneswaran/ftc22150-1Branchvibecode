@@ -17,7 +17,14 @@ public class intake {
     }
 
     public void powerSet(double triggerOutput) {
-        intakeMotor.setPower(0.5 * triggerOutput);
+        intakeMotor.setPower(1 * triggerOutput);
+    }
+
+    public void reverse(){
+        intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+    }
+    public void proper(){
+        intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
 }

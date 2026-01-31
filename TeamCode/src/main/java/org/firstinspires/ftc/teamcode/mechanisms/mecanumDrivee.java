@@ -4,14 +4,16 @@ import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.tel
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 public class mecanumDrivee {
     private DcMotor frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor;
     private IMU imu;
-    double maxSpeed = 1.0; // adjustable speed for training
+    double maxSpeed = 0.6; // adjustable speed for training
 
     public void init(HardwareMap hardwareMap) {
         // motors
@@ -38,41 +40,44 @@ public class mecanumDrivee {
         imu = hardwareMap.get(IMU.class, "imu");
 
         RevHubOrientationOnRobot revOrientation = new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
+                RevHubOrientationOnRobot.LogoFacingDirection.FORWARD,
+                RevHubOrientationOnRobot.UsbFacingDirection.UP
         );
 
         imu.initialize(new IMU.Parameters(revOrientation));
     }
-    public void fieldOrient(double forward, double rotate, double strafe) {
-        double theta = Math.atan2(strafe, forward); // originally forward, strafe
-        double r = Math.hypot(forward, strafe);
-
-        theta = AngleUnit.normalizeRadians(theta -
-                imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS));
-
-        double newForward = r * Math.sin(theta);
-        double newStrafe = r * Math.cos(theta);
-
-        double frontLeftPower = newForward + newStrafe + rotate;
-        double frontRightPower = newForward - newStrafe - rotate;
-        double backLeftPower = newForward - newStrafe + rotate;
-        double backRightPower = newForward + newStrafe - rotate;
+    public void fieldOrient(double forward, double strafe, double rotate) {
+//        double theta = Math.atan2(forward, strafe); // originally forward, strafe
+//        double r = Math.hypot(forward, strafe);
+//
+//        theta = AngleUnit.normalizeRadians(theta - imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS));
+//
+//        double newForward = r * Math.sin(-theta); //blue its negative
+//        double newStrafe = r * Math.cos(-theta); //blue its negative
+//
+//        double frontLeftPower = newForward + newStrafe + rotate;
+//        double frontRightPower = newForward - newStrafe - rotate;
+//        double backLeftPower = newForward - newStrafe + rotate;
+//        double backRightPower = newForward + newStrafe - rotate;
+        double frontLeftPower = forward + strafe + rotate;
+        double frontRightPower = forward - strafe - rotate;
+        double backLeftPower = forward - strafe + rotate;
+        double backRightPower = forward + strafe - rotate;
 
         // power normalization (to prevent values going beyond 1.0)
-        double max = Math.max(Math.abs(frontLeftPower), Math.max(Math.abs(backLeftPower),
-                Math.max(Math.abs(frontRightPower), Math.abs(backRightPower))));
+        double max = 1.0;
+        max = Math.max(max, Math.abs(frontLeftPower));
+        max = Math.max(max, Math.abs(frontRightPower));
+        max = Math.max(max, Math.abs(backLeftPower));
+        max = Math.max(max, Math.abs(backRightPower));
 
-        if (max > 1.0) {
-            frontLeftPower /= max;
-            backLeftPower /= max;
-            frontRightPower /= max;
-            backRightPower /= max;
-        }
+        frontLeftMotor.setPower(maxSpeed*(frontLeftPower/max));
+        frontRightMotor.setPower(maxSpeed*(frontRightPower/max));
+        backLeftMotor.setPower(maxSpeed*(backLeftPower/max));
+        backRightMotor.setPower(maxSpeed*(backRightPower/max));
+    }
 
-        frontLeftMotor.setPower(maxSpeed * frontLeftPower);
-        frontRightMotor.setPower(maxSpeed * frontRightPower);
-        backLeftMotor.setPower(maxSpeed * backLeftPower);
-        backRightMotor.setPower(maxSpeed * backRightPower);
+    public void runAuto(){
+
     }
 }
