@@ -20,7 +20,7 @@ public class spindexer {
         int newPosition = (int) (numRotations * one_rev)/3 + currentPosition;
         spindexerMotor.setTargetPosition(newPosition);
         spindexerMotor.setTargetPositionTolerance(3);
-        spindexerMotor.setPower(0.2);
+        spindexerMotor.setPower(0.1);
         spindexerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         return newPosition;
@@ -46,27 +46,23 @@ public class spindexer {
         return unstuckPos;
     }
 
-    public void shoot(){
-        spindexerMotor.setTargetPosition(-128);
-        spindexerMotor.setPower(0.5);
+    public int shoot(int currentPosition){
+        int newPosition =  currentPosition-(int) (one_rev)/3;
+        spindexerMotor.setTargetPosition(newPosition);
+        spindexerMotor.setTargetPositionTolerance(3);
+        spindexerMotor.setPower(0.3);
         spindexerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-//        while(spindexerMotor.isBusy()){
-//            //stall time
-//            if(gamepad1.yWasPressed()){
-//                //rotateBack(getTickCount() + 100);
-//                telemetry.addLine("came here");
-//                break;
-//            }
-//
-//        }
-
-        //spindexerMotor.setPower(0);
+        return newPosition;
     }
     public void resetEncoder(){
         spindexerMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
     public int getTickCount() {
         return spindexerMotor.getCurrentPosition();
+    }
+
+    public void setPosition(int speed) {
+        spindexerMotor.setTargetPosition(speed);
     }
 }

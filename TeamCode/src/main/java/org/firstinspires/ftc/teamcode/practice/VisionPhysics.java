@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.webcam;
 
 import java.util.List;
 
-@TeleOp(name = "Vision + Physics Calculator", group = "TeleOp")
+@TeleOp(name = "Physics Calculator", group = "TeleOp")
 public class VisionPhysics extends OpMode {
     // Physics constants (copied from your PhysicsEquation)
     private final double GRAVITY = 9.81;

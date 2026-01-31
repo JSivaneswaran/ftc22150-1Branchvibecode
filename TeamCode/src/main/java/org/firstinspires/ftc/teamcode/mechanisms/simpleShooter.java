@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.mechanisms;
 
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -12,6 +13,7 @@ public class simpleShooter {
     public void init(HardwareMap hardwareMap){
         mainShooter = hardwareMap.get(DcMotorEx.class, "mainShooter");
         mainShooter.setDirection(DcMotorSimple.Direction.REVERSE);
+        mainShooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
 
@@ -23,5 +25,9 @@ public class simpleShooter {
         else{
             mainShooter.setPower(0.05);
         }
+    }
+
+    public void setPosition(int speed) {
+        mainShooter.setTargetPosition(speed);
     }
 }

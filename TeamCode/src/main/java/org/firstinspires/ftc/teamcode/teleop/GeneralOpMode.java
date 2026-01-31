@@ -14,7 +14,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 @TeleOp(name = "Driver", group = "Teleop")
 public class GeneralOpMode extends OpMode {
     private final spindexer spin = new spindexer();
-    private boolean blue = false;
+    private boolean blue = true;
     private int currentPosition = 0;
     private final intake mainIntake = new intake();
     private boolean intakeReverse = false;
@@ -52,13 +52,14 @@ public class GeneralOpMode extends OpMode {
             {0.09, 0.06},
             {0.04, 0.095}
     };
-    private final colorSensor.DetectedColor[] current = {
+    private final colorSensor.DetectedColor[] currentColor = {
             colorSensor.DetectedColor.UNKNOWN,
             colorSensor.DetectedColor.UNKNOWN,
             colorSensor.DetectedColor.UNKNOWN
     };
 
     private int greenIndexGoal = -1;
+    private boolean auton = false;
 
     @Override
     public void init() {
@@ -88,7 +89,13 @@ public class GeneralOpMode extends OpMode {
 
         updateShooter();
         // updates spindexeder automation based on color
-        //updateSpindexerAutomation();
+        telemetry.addData("Auton On", auton);
+        if(gamepad2.dpadDownWasPressed() || gamepad1.dpadLeftWasPressed()){
+            auton = !auton;
+        }
+        if(auton) {
+            updateSpindexerAutomation();
+        }
 
         // Methods to move spindexer
         updateSpindexer();
@@ -99,9 +106,9 @@ public class GeneralOpMode extends OpMode {
         strafe = gamepad1.left_stick_x;
         rotate = gamepad1.right_stick_x;
 
-        if (Math.abs(forward) < 0.1) forward = 0;
-        if (Math.abs(strafe) < 0.1) strafe = 0;
-        if (Math.abs(rotate) < 0.1) rotate = 0;
+        if (Math.abs(forward) < 0.3) forward = 0;
+        if (Math.abs(strafe) < 0.3) strafe = 0;
+        if (Math.abs(rotate) < 0.3) rotate = 0;
 
         if(gamepad1.dpadUpWasPressed()){
             blue = !blue;
@@ -134,10 +141,10 @@ public class GeneralOpMode extends OpMode {
 
     public void updateSpindexerAutomation(){
         telemetry.addData("intake mode", intakeMode);
-        if(intakeMode && current[0] != colorSensor.DetectedColor.UNKNOWN) {
+        if(intakeMode && currentColor[0] != colorSensor.DetectedColor.UNKNOWN) {
             int checkUknown = -1;
             for(int i = 2; i>0; i--){
-                if(current[i] == colorSensor.DetectedColor.UNKNOWN){
+                if(currentColor[i] == colorSensor.DetectedColor.UNKNOWN){
                     checkUknown = i;
                     break;
                 }
@@ -148,18 +155,18 @@ public class GeneralOpMode extends OpMode {
                 currentPosition = spin.rotate(2, currentPosition);
             }else{
                 updateColor();
-                currentPosition = spin.rotate(colorSensor.numSpin(current, greenIndexGoal), currentPosition);
+                currentPosition = spin.rotate(colorSensor.numSpin(currentColor, greenIndexGoal), currentPosition);
                 intakeMode = false;
             }
         }
     }
     public void updateColor(){
         for(int i = 0; i < 3; i++){
-            current[i] = colorSensor.getDetectedColor(module[i][0], module[i][1], telemetry);
+            currentColor[i] = colorSensor.getDetectedColor(module[i][0], module[i][1], telemetry);
         }
 
         for(int i = 0; i < 3; i++){
-            telemetry.addData("current color " + i, current[i]);
+            telemetry.addData("current color " + i, currentColor[i]);
         }
     }
 
@@ -168,24 +175,22 @@ public class GeneralOpMode extends OpMode {
     }
     public void updateSpindexer(){
         //spinner testing code
-        if(gamepad1.dpadRightWasPressed()){
+        if(gamepad2.dpadRightWasPressed()||gamepad1.dpadRightWasPressed()){
             currentPosition = spin.resetRotation(currentPosition);
         }
 
-        if(gamepad1.aWasPressed()){
-            currentPosition = spin.rotate(0, currentPosition);
-        }else if(gamepad1.bWasPressed()){
+        if(gamepad1.bWasPressed()){
             currentPosition = spin.rotate(1, currentPosition);
-        }else if(gamepad1.xWasPressed()){
-            currentPosition = spin.rotate(2, currentPosition);
         }else if(gamepad1.yWasPressed()){
-            currentPosition = spin.rotate(colorSensor.numSpin(current, greenIndexGoal), currentPosition);
-        }
-
-        if(gamepad1.rightBumperWasPressed()){
-            spin.shoot();
+            // alligns spindexer
+            currentPosition = spin.rotate(colorSensor.numSpin(currentColor, greenIndexGoal), currentPosition);
+        }else if(gamepad1.aWasPressed()){
             currentPosition = spin.reset();
             intakeMode = true;
+        }
+
+        if(gamepad2.rightBumperWasPressed() || gamepad1.rightBumperWasPressed()){
+            currentPosition = spin.shoot(currentPosition);
         }
     }
 
@@ -200,10 +205,13 @@ public class GeneralOpMode extends OpMode {
 
         if(id21 != null){
             greenIndexGoal = 0;
+            aprilTagWebcam.stop();
         }else if(id22 != null){
             greenIndexGoal = 1;
+            aprilTagWebcam.stop();
         }else if(id23 != null){
             greenIndexGoal = 2;
+            aprilTagWebcam.stop();
         }
 
         telemetry.addLine();
