@@ -75,21 +75,12 @@ public class colorSensor {
          * @return an array of int size 3 that determines order of shooting
          *
          * */
-        int currentGreenIndex = -1;
-        int unknownIndex = -1;
+        int currentGreenIndex = 0;
 
         for(int i = 0; i < 3; i++){
-           if (colors[i] == DetectedColor.GREEN){
+           if (colors[i] == DetectedColor.GREEN) {
                currentGreenIndex = i;
-           }else if(colors[i] == DetectedColor.UNKNOWN){
-               unknownIndex = i;
            }
-        }
-
-        if(currentGreenIndex == -1 && unknownIndex != -1){
-            currentGreenIndex = unknownIndex;
-        }else{
-            return 0;
         }
 
         return (greenIndex-currentGreenIndex + 3)%3;

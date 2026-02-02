@@ -81,14 +81,14 @@ public class GeneralOpMode extends OpMode {
     @Override
     public void loop() {
 
-        //updateDrive();
+        updateDrive();
 
         //updateAprilTag();
 
         //updateIntake();
         updateColor();
 
-        //updateShooter();
+        updateShooter();
         // updates spindexeder automation based on color
         telemetry.addData("Auton On", auton);
 
@@ -110,6 +110,8 @@ public class GeneralOpMode extends OpMode {
         strafe = gamepad1.left_stick_x;
         rotate = gamepad1.right_stick_x;
 
+        telemetry.addData("rotation", rotate);
+
         if (Math.abs(forward) < 0.3) forward = 0;
         if (Math.abs(strafe) < 0.3) strafe = 0;
         if (Math.abs(rotate) < 0.3) rotate = 0;
@@ -118,14 +120,15 @@ public class GeneralOpMode extends OpMode {
             blue = !blue;
         }
 
-        String alliance = "";
-        if(blue){alliance = "blue";}else{alliance = "red";}
-        telemetry.addData("Alliance", alliance);
-        telemetry.addLine();
         if(blue){
             drive.fieldOrient(forward, strafe, rotate);
         }else{
             drive.fieldOrient(-forward, -strafe, rotate);
+        }
+
+        telemetry.addData("IMU YAW", drive.getYaw());
+        if(gamepad1.left_bumper){
+            drive.resetIMU();
         }
     }
 

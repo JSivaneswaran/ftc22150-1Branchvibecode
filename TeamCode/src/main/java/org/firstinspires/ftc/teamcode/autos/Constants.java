@@ -14,10 +14,10 @@ public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants().mass(22);
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
-            .rightFrontMotorName("frontRight")
-            .rightRearMotorName("backRight")
-            .leftRearMotorName("backLeft")
-            .leftFrontMotorName("frontLeft")
+            .rightFrontMotorName("backLeft")
+            .rightRearMotorName("frontLeft")
+            .leftRearMotorName("frontRight")
+            .leftFrontMotorName("backRight")
             .leftFrontMotorDirection(DcMotor.Direction.REVERSE)
             .leftRearMotorDirection(DcMotor.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotor.Direction.FORWARD)
@@ -43,6 +43,9 @@ public class Constants {
             .rightFrontEncoderDirection(Encoder.FORWARD)
             .rightRearEncoderDirection(Encoder.FORWARD)
             .robotLength(17.5)
-            .robotWidth(16.5);
+            .robotWidth(16.5)
+            .forwardTicksToInches(1)
+            .strafeTicksToInches(1)
+            .turnTicksToInches(1);
 
 }

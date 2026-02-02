@@ -18,8 +18,8 @@ public class spindexer {
     public int rotate(int numRotations, int currentPosition){
         int newPosition = (int) (numRotations * one_rev)/3 + currentPosition;
         spindexerMotor.setTargetPosition(newPosition);
-        spindexerMotor.setTargetPositionTolerance(3);
-        spindexerMotor.setPower(0.1);
+        spindexerMotor.setTargetPositionTolerance(1);
+        spindexerMotor.setPower(0.2);
         spindexerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         return newPosition;
@@ -40,13 +40,13 @@ public class spindexer {
             unstuckPos = tick + 128;
         }
         spindexerMotor.setTargetPosition(unstuckPos);
-        spindexerMotor.setPower(0.1);
+        //spindexerMotor.setPower(0.1);
         spindexerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         return unstuckPos;
     }
 
     public void stopMotorIfNeeded(int currentPosition){
-        if(isItNotBusy(currentPosition) && spindexerMotor.isBusy()){
+        if(isItNotBusy(currentPosition)){
             spindexerMotor.setPower(0);
         }
     }
@@ -57,10 +57,10 @@ public class spindexer {
     }
 
     public int shoot(int currentPosition){
-        int newPosition =  currentPosition-(int) (one_rev)/3;
+        int newPosition =  currentPosition-(int) (one_rev);
         spindexerMotor.setTargetPosition(newPosition);
         spindexerMotor.setTargetPositionTolerance(3);
-        spindexerMotor.setPower(0.3);
+        spindexerMotor.setPower(0.2);
         spindexerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         return newPosition;
