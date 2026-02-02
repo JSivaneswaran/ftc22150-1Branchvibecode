@@ -1,11 +1,11 @@
-package org.firstinspires.ftc.teamcode.subsystems;
+package org.firstinspires.ftc.teamcode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
 
-@TeleOp(name = "Servo Testing")
+@TeleOp(name = "Servo Testing",  group = "Teleop")
 public class servoHood extends LinearOpMode {
     private Servo leftServo;
     private Servo rightServo;
@@ -20,7 +20,7 @@ public class servoHood extends LinearOpMode {
         rightServo = hardwareMap.get(Servo.class, "right_servo");
 
         leftServo.setPosition(position);
-        rightServo.setPosition(0.8 - position ); //mechanical offset
+        rightServo.setPosition(maxPos - position ); //mechanical offset
 
         waitForStart();
 
@@ -37,7 +37,6 @@ public class servoHood extends LinearOpMode {
             }
 
             // set max and mins
-            //0.8 because at 1.0 it exceeds contact point
             position = Math.max(0.0, Math.min(maxPos, position));
 
             //only change position if it has changed (don't constantly run servos)

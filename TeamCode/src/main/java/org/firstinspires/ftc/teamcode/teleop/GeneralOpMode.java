@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.subsystems.AprilTagWebcam;
 import org.firstinspires.ftc.teamcode.subsystems.colorSensor;
 import org.firstinspires.ftc.teamcode.subsystems.intake;
 import org.firstinspires.ftc.teamcode.subsystems.mecanumDrivee;
+import org.firstinspires.ftc.teamcode.subsystems.servo;
 import org.firstinspires.ftc.teamcode.subsystems.simpleShooter;
 import org.firstinspires.ftc.teamcode.subsystems.spindexer;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -14,7 +15,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 @TeleOp(name = "Driver", group = "Teleop")
 public class GeneralOpMode extends OpMode {
     private final spindexer spin = new spindexer();
-    private boolean rotating = false;
+    private final servo all_servo = new servo();
     private boolean blue = true;
     private int currentPosition = 0;
     private final intake mainIntake = new intake();
@@ -65,6 +66,7 @@ public class GeneralOpMode extends OpMode {
 
     @Override
     public void init() {
+        all_servo.init(hardwareMap);
         drive.init(hardwareMap);
         spin.init(hardwareMap);
         mainIntake.init(hardwareMap);
@@ -84,16 +86,17 @@ public class GeneralOpMode extends OpMode {
         updateDrive();
 
         //updateAprilTag();
-
-        //updateIntake();
+        updateIntake();
         updateColor();
 
         updateShooter();
+
+        updateServo();
         // updates spindexeder automation based on color
         telemetry.addData("Auton On", auton);
 
         spin.stopMotorIfNeeded(currentPosition);
-        if(gamepad2.dpadDownWasPressed() || gamepad1.dpadLeftWasPressed()){
+        if(gamepad1.dpadLeftWasPressed()){
             auton = !auton;
         }
         if(auton) {
@@ -226,5 +229,18 @@ public class GeneralOpMode extends OpMode {
 
         telemetry.addLine();
         telemetry.addData("green index:", greenIndexGoal);
+    }
+
+    public void updateServo(){
+        boolean upPressed   = gamepad2.dpadUpWasPressed();
+        boolean downPressed = gamepad2.dpadDownWasPressed();
+
+        if (upPressed) {
+            all_servo.changePosition(1);
+        }else if (downPressed) {
+            all_servo.changePosition(-1);
+        }
+
+
     }
 }
