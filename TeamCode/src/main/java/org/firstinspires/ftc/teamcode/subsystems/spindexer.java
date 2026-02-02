@@ -1,8 +1,7 @@
-package org.firstinspires.ftc.teamcode.mechanisms;
+package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class spindexer {
@@ -44,6 +43,17 @@ public class spindexer {
         spindexerMotor.setPower(0.1);
         spindexerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         return unstuckPos;
+    }
+
+    public void stopMotorIfNeeded(int currentPosition){
+        if(isItNotBusy(currentPosition) && spindexerMotor.isBusy()){
+            spindexerMotor.setPower(0);
+        }
+    }
+
+    public boolean isItNotBusy(int currentPosition){
+        int currentTick = getTickCount();
+        return currentPosition + 3 > currentTick && currentPosition - 3 < currentTick;
     }
 
     public int shoot(int currentPosition){

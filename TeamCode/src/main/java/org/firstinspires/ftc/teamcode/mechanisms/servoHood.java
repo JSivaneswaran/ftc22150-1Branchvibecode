@@ -11,6 +11,7 @@ public class servoHood extends LinearOpMode {
     private Servo rightServo;
     double step = 0.02;
     double position = 0;
+    double maxPos = 0.62;
 
     @Override
     public void runOpMode() {
@@ -37,14 +38,14 @@ public class servoHood extends LinearOpMode {
 
             // set max and mins
             //0.8 because at 1.0 it exceeds contact point
-            position = Math.max(0.0, Math.min(0.8, position));
+            position = Math.max(0.0, Math.min(maxPos, position));
 
             //only change position if it has changed (don't constantly run servos)
             if (leftServo.getPosition() != position) {
                 leftServo.setPosition(position);
             }
            if (rightServo.getPosition() != position) {
-             rightServo.setPosition(0.8 - position);
+             rightServo.setPosition(maxPos - position);
             }
 
            //print out positions for testing

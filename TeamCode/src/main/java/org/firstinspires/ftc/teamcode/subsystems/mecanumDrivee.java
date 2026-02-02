@@ -1,14 +1,10 @@
-package org.firstinspires.ftc.teamcode.mechanisms;
-
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 public class mecanumDrivee {
     private DcMotor frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor;
@@ -47,22 +43,23 @@ public class mecanumDrivee {
         imu.initialize(new IMU.Parameters(revOrientation));
     }
     public void fieldOrient(double forward, double strafe, double rotate) {
-        double theta = Math.atan2(forward, strafe); // originally forward, strafe
-        double r = Math.hypot(forward, strafe);
+//        double theta = Math.atan2(forward, strafe); // originally forward, strafe
+//        double r = Math.hypot(forward, strafe);
 
-        theta = AngleUnit.normalizeRadians(theta - imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS));
+//        theta = AngleUnit.normalizeRadians(theta - imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS));
+//
+//        double newForward = r * Math.cos(theta); //blue its negative
+//        double newStrafe = r * Math.sin(theta); //blue its negative
 
-        double newForward = r * Math.cos(theta); //blue its negative
-        double newStrafe = r * Math.sin(theta); //blue its negative
+        double theta = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+
+        double newStrafe = strafe * Math.cos(-theta) - forward * Math.sin(-theta);
+        double newForward = strafe * Math.sin(-theta) + forward * Math.cos(-theta);
 
         double frontLeftPower = newForward + newStrafe + rotate;
         double frontRightPower = newForward - newStrafe - rotate;
         double backLeftPower = newForward - newStrafe + rotate;
         double backRightPower = newForward + newStrafe - rotate;
-//        double frontLeftPower = forward + strafe + rotate;
-//        double frontRightPower = forward - strafe - rotate;
-//        double backLeftPower = forward - strafe + rotate;
-//        double backRightPower = forward + strafe - rotate;
 
         // power normalization (to prevent values going beyond 1.0)
         double max = 1;
@@ -75,16 +72,5 @@ public class mecanumDrivee {
         frontRightMotor.setPower((frontRightPower/max));
         backLeftMotor.setPower((backLeftPower/max) * 2.25);
         backRightMotor.setPower((backRightPower/max));
-    }
-
-    public void runAuto(){
-        backRightMotor.setTargetPosition(18 * 10);
-        frontRightMotor.setTargetPosition(-18* 10);
-        frontLeftMotor.setTargetPosition(-18 * 10);
-        backLeftMotor.setTargetPosition(18 * 10);
-        frontLeftMotor.setPower(0.5);
-        frontRightMotor.setPower(0.5);
-        backLeftMotor.setPower(0.5);
-        backRightMotor.setPower(0.5);
     }
 }

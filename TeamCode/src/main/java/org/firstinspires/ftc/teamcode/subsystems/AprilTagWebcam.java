@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.mechanisms;
+package org.firstinspires.ftc.teamcode.subsystems;
 
 import android.util.Size;
 
@@ -15,13 +15,15 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.ArrayList;
 import java.util.List;
 
-public class webcam {
+public class AprilTagWebcam {
     private AprilTagProcessor aprilTagProcessor;
     private VisionPortal visionPortal;
-    private List<AprilTagDetection> detectedTags = new ArrayList<>();
+
+    private List<AprilTagDetection> tagsDetected = new ArrayList<>();
+
     private Telemetry telemetry;
 
-    public void init(HardwareMap hardwareMap, Telemetry telemetry) {
+    public void init(HardwareMap hardwareMap, Telemetry telemetry){
         this.telemetry = telemetry;
 
         aprilTagProcessor = new AprilTagProcessor.Builder()
@@ -29,8 +31,7 @@ public class webcam {
                 .setDrawTagOutline(true)
                 .setDrawAxes(true)
                 .setDrawCubeProjection(true)
-                .setOutputUnits(DistanceUnit.CM, AngleUnit.DEGREES)
-                .build();
+                .setOutputUnits(DistanceUnit.CM, AngleUnit.DEGREES).build();
 
         VisionPortal.Builder builder = new VisionPortal.Builder();
         builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
@@ -39,39 +40,52 @@ public class webcam {
 
         visionPortal = builder.build();
     }
-    public void update() {
-        detectedTags = aprilTagProcessor.getDetections();
+
+    public void update(){
+        tagsDetected = aprilTagProcessor.getDetections();
     }
 
-    public List<AprilTagDetection> getDetectedTags() {
-        return detectedTags;
+    public List<AprilTagDetection> getTagsDetected() {
+        return tagsDetected;
     }
 
-    public void displayDetectionTelemetry(AprilTagDetection detectedId) {
-        if (detectedId == null) {
+    public AprilTagDetection getTagId(int id){
+        for(AprilTagDetection i : tagsDetected){
+            if(i.id == id){
+                return i;
+            }
+        }
+
+        return null;
+    }
+
+    public void stop(){
+        if(visionPortal != null){
+            visionPortal.close();
+        }
+    }
+
+    public double getAngle(AprilTagDetection detectedId){
+        if(detectedId == null){
+            return 0.0;
+        }
+
+        return detectedId.ftcPose.yaw;
+    }
+
+    public void display(AprilTagDetection detectedId){
+        if(detectedId == null){
             return;
         }
+
         if (detectedId.metadata != null) {
             telemetry.addLine(String.format("\n==== (ID %d) %s", detectedId.id, detectedId.metadata.name));
-            telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detectedId.ftcPose.x, detectedId.ftcPose.y, detectedId.ftcPose.z));
+            telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (cm)", detectedId.ftcPose.x, detectedId.ftcPose.y, detectedId.ftcPose.z));
             telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", detectedId.ftcPose.pitch, detectedId.ftcPose.roll, detectedId.ftcPose.yaw));
-            telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detectedId.ftcPose.range, detectedId.ftcPose.bearing, detectedId.ftcPose.elevation));
+            telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (cm, deg, deg)", detectedId.ftcPose.range, detectedId.ftcPose.bearing, detectedId.ftcPose.elevation));
         } else {
             telemetry.addLine(String.format("\n==== (ID %d) Unknown", detectedId.id));
             telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detectedId.center.x, detectedId.center.y));
-        }
-    }
-    public AprilTagDetection getTagBySpecificID(int id) {
-        for (AprilTagDetection detection : detectedTags) {
-            if (detection.id == id) {
-                return detection;
             }
-        }
-        return null;
-    }
-    public void stop() {
-        if (visionPortal != null) {
-            visionPortal.close();
-        }
     }
 }

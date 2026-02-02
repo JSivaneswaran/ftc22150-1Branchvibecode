@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.mechanisms;
+package org.firstinspires.ftc.teamcode.subsystems;
 
 import android.graphics.Color;
 
@@ -9,8 +9,6 @@ import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.SwitchableLight;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-
-import java.util.ArrayList;
 
 public class colorSensor {
     public NormalizedColorSensor sensor;
@@ -78,15 +76,22 @@ public class colorSensor {
          *
          * */
         int currentGreenIndex = -1;
+        int unknownIndex = -1;
 
         for(int i = 0; i < 3; i++){
            if (colors[i] == DetectedColor.GREEN){
                currentGreenIndex = i;
+           }else if(colors[i] == DetectedColor.UNKNOWN){
+               unknownIndex = i;
            }
         }
-        if(currentGreenIndex == -1){
+
+        if(currentGreenIndex == -1 && unknownIndex != -1){
+            currentGreenIndex = unknownIndex;
+        }else{
             return 0;
         }
+
         return (greenIndex-currentGreenIndex + 3)%3;
     }
 }
