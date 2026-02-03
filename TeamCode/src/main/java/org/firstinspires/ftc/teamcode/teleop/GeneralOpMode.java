@@ -176,7 +176,18 @@ public class GeneralOpMode extends OpMode {
             AprilTagDetection id20 = aprilTagWebcam.getTagId(20);
             if(id20 != null) {
                 double yaw = aprilTagWebcam.getAngle(id20);
-                drive.fieldOrient(0, 0, -yaw);
+                double bearing = aprilTagWebcam.getBearing(id20);
+                double angleChange = 0;
+                if (bearing - yaw < 15 && bearing-yaw > -15){
+                    angleChange = -yaw;
+                }else{
+                    if(bearing < -15){
+                        angleChange = -15 - bearing;
+                    }else if(bearing > 15){
+                        angleChange = 15 - bearing;
+                    }
+                }
+                drive.fieldOrient(0, 0, angleChange);
             }
         }
     }

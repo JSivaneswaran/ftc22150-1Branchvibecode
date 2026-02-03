@@ -71,7 +71,15 @@ public class AprilTagWebcam {
             return 0.0;
         }
 
-        return Math.toRadians(detectedId.ftcPose.yaw);
+        return detectedId.ftcPose.yaw;
+    }
+
+    public double getBearing(AprilTagDetection detectedId){
+        if(detectedId == null){
+            return 0.0;
+        }
+
+        return detectedId.ftcPose.bearing;
     }
 
     @SuppressLint("DefaultLocale")
