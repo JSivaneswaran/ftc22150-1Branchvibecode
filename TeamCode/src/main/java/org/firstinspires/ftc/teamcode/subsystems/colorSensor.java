@@ -8,8 +8,6 @@ import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.SwitchableLight;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-
 public class colorSensor {
     public NormalizedColorSensor sensor;
 
@@ -36,7 +34,7 @@ public class colorSensor {
     }
 
     // Detects the color
-    public static DetectedColor getDetectedColor(colorSensor cs1, colorSensor cs2, Telemetry telemetry){
+    public static DetectedColor getDetectedColor(colorSensor cs1, colorSensor cs2){
 
         NormalizedRGBA colors = cs1.sensor.getNormalizedColors();
         NormalizedRGBA colors2 = cs2.sensor.getNormalizedColors();
@@ -64,17 +62,15 @@ public class colorSensor {
         return color;
     }
 
-    // an alogrithm to determine order of modules to shoot, 0 being next to intake and bellow shooter
+    /**
+     * Returns an array of size 3 that determines what modules should the bot rotate
+     * in order to execute the command effeciently. It optimizes the path the bot should take.
+     *
+     * @param colors The current colors in each module from module 0,1,2 in that order
+     * @param greenIndex The index that the green ball should be in
+     * @return an array of int size 3 that determines order of shooting
+     **/
     public static int numSpin(DetectedColor[] colors, int greenIndex){
-        /**
-         * Returns an array of size 3 that determines what modules should the bot rotate
-         * in order to execute the command effeciently. It optimizes the path the bot should take.
-         *
-         * @param colors The current colors in each module from module 0,1,2 in that order
-         * @param greenIndex The index that the green ball should be in
-         * @return an array of int size 3 that determines order of shooting
-         *
-         * */
         int currentGreenIndex = 0;
 
         for(int i = 0; i < 3; i++){

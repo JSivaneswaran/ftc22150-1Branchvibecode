@@ -16,7 +16,6 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 public class GeneralOpMode extends OpMode {
     private final spindexer spin = new spindexer();
     private final servo all_servo = new servo();
-    private boolean blue = true;
     private int currentPosition = 0;
     private final intake mainIntake = new intake();
     private boolean intakeReverse = false;
@@ -60,8 +59,7 @@ public class GeneralOpMode extends OpMode {
             colorSensor.DetectedColor.UNKNOWN
     };
 
-    private int greenIndexGoal = 2;
-    private AprilTagDetection id20, id21, id22, id23;
+    private int greenIndexGoal = -1;
     private boolean auton = true;
 
     @Override
@@ -85,27 +83,24 @@ public class GeneralOpMode extends OpMode {
 
         updateDrive();
 
-        //updateAprilTag();
+        if(greenIndexGoal != -1) {updateAprilTag();}
+
         updateIntake();
-        updateColor();
 
         updateShooter();
 
         updateServo();
-        // updates spindexeder automation based on color
-        telemetry.addData("Auton On", auton);
 
         spin.stopMotorIfNeeded(currentPosition);
-        if(gamepad1.dpadLeftWasPressed()){
-            auton = !auton;
-        }
-        if(auton) {
+
+        if(auton && intakeMode) {
             updateSpindexerAutomation();
         }
 
         // Methods to move spindexer
         updateSpindexer();
-        telemetry.addData("Spindexer stopped", spin.isItNotBusy(currentPosition));
+
+        updateAllTelemetry();
     }
 
     public void updateDrive(){
@@ -113,21 +108,29 @@ public class GeneralOpMode extends OpMode {
         strafe = gamepad1.left_stick_x;
         rotate = gamepad1.right_stick_x;
 
-        telemetry.addData("rotation", rotate);
-
-        if (Math.abs(forward) < 0.3) forward = 0;
-        if (Math.abs(strafe) < 0.3) strafe = 0;
-        if (Math.abs(rotate) < 0.3) rotate = 0;
-
-        if(gamepad1.dpadUpWasPressed()){
-            blue = !blue;
-        }
-
-        if(blue){
-            drive.fieldOrient(forward, strafe, rotate);
+        if (Math.abs(forward) < 0.3) {
+            forward = 0;
+        }else if(forward >= 0.3){
+            forward -=0.3;
         }else{
-            drive.fieldOrient(-forward, -strafe, rotate);
+            forward += 0.3;
         }
+        if (Math.abs(strafe) < 0.3){
+            strafe = 0;
+        } else if(strafe >= 0.3){
+            strafe -=0.3;
+        }else{
+            strafe += 0.3;
+        }
+        if (Math.abs(rotate) < 0.3){
+            rotate = 0;
+        }else if(rotate >= 0.3){
+            rotate -=0.3;
+        }else{
+            rotate += 0.3;
+        }
+
+        drive.fieldOrient(forward, strafe, rotate);
 
         telemetry.addData("IMU YAW", drive.getYaw());
         if(gamepad1.left_bumper){
@@ -149,20 +152,14 @@ public class GeneralOpMode extends OpMode {
     }
 
     public void updateSpindexerAutomation(){
-        telemetry.addData("intake mode", intakeMode);
+        updateColor();
         if(intakeMode && currentColor[0] != colorSensor.DetectedColor.UNKNOWN && spin.isItNotBusy(currentPosition)) {
-            int checkUknown = -1;
-            for(int i = 2; i>0; i--){
-                if(currentColor[i] == colorSensor.DetectedColor.UNKNOWN){
-                    checkUknown = i;
-                    break;
-                }
-            }
-            if(checkUknown == 2) {
-                currentPosition = spin.rotate(1, currentPosition);
-            }else if(checkUknown == 1){
-                currentPosition = spin.rotate(2, currentPosition);
-            }else{
+            colorSensor.DetectedColor currcolor = currentColor[0];
+            currentColor[0] = currentColor[2];
+            currentColor[2] = currentColor[1];
+            currentColor[1] = currcolor;
+            currentPosition = spin.rotate(1, currentPosition);
+            if(currentColor[0] != colorSensor.DetectedColor.UNKNOWN){
                 intakeMode = false;
                 currentPosition = spin.rotate(colorSensor.numSpin(currentColor, greenIndexGoal), currentPosition);
             }
@@ -170,19 +167,23 @@ public class GeneralOpMode extends OpMode {
         }
     }
     public void updateColor(){
-        for(int i = 0; i < 3; i++){
-            currentColor[i] = colorSensor.getDetectedColor(module[i][0], module[i][1], telemetry);
-        }
-
-        for(int i = 0; i < 3; i++){
-            telemetry.addData("current color " + i, currentColor[i]);
-        }
+        currentColor[0] = colorSensor.getDetectedColor(module[0][0], module[0][1]);
     }
 
     public void updateShooter(){
         shooter.runShooter(gamepad1.right_trigger);
+        if(gamepad1.xWasPressed()) {
+            AprilTagDetection id20 = aprilTagWebcam.getTagId(20);
+            if(id20 != null) {
+                double yaw = aprilTagWebcam.getAngle(id20);
+                drive.fieldOrient(0, 0, -yaw);
+            }
+        }
     }
     public void updateSpindexer(){
+        if(gamepad2.dpadLeftWasPressed()){
+            auton = !auton;
+        }
         //spinner testing code
         if(gamepad2.dpadRightWasPressed()||gamepad1.dpadRightWasPressed()){
             currentPosition = spin.resetRotation(currentPosition);
@@ -211,24 +212,11 @@ public class GeneralOpMode extends OpMode {
 
         if(id21 != null){
             greenIndexGoal = 0;
-            aprilTagWebcam.stop();
         }else if(id22 != null){
             greenIndexGoal = 1;
-            aprilTagWebcam.stop();
         }else if(id23 != null){
             greenIndexGoal = 2;
-            aprilTagWebcam.stop();
         }
-        if(gamepad1.xWasPressed()) {
-            id20 = aprilTagWebcam.getTagId(20);
-            if(id20 == null) {
-                double yaw = aprilTagWebcam.getAngle(id20);
-                drive.fieldOrient(0, 0, -yaw);
-            }
-        }
-
-        telemetry.addLine();
-        telemetry.addData("green index:", greenIndexGoal);
     }
 
     public void updateServo(){
@@ -242,5 +230,21 @@ public class GeneralOpMode extends OpMode {
         }
 
 
+    }
+
+    public void updateAllTelemetry(){
+        telemetry.addLine("INTAKE");
+        telemetry.addData("intake mode", intakeMode);
+        telemetry.addLine("--------------------------------------------------------");
+        telemetry.addLine("CURRENT COLORS");
+        for(int i = 0; i < 3; i++){
+            telemetry.addData("current color " + i, currentColor[i]);
+        }
+        telemetry.addLine("--------------------------------------------------------");
+        telemetry.addLine("GREEN INDEX FOR POSITIONING");
+        telemetry.addData("green index", greenIndexGoal);
+        telemetry.addLine("--------------------------------------------------------");
+        telemetry.addLine("SPINDEXER AUTON MODE");
+        telemetry.addData("Auton Mode", auton);
     }
 }

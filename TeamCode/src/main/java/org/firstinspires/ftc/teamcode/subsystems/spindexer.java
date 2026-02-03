@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class spindexer {
     private DcMotorEx spindexerMotor;
-    private double one_rev = 384.5;
+    private final double one_rev = 384.5;
 
 
     public void init(HardwareMap hardwareMap){
@@ -33,7 +33,7 @@ public class spindexer {
     }
     public int resetRotation(int currentPos){
         int tick = getTickCount()/128 * 128;
-        int unstuckPos = 0;
+        int unstuckPos;
         if(getTickCount() < currentPos){
             unstuckPos = tick;
         }else{
@@ -57,7 +57,7 @@ public class spindexer {
     }
 
     public int shoot(int currentPosition){
-        int newPosition =  currentPosition-(int) (one_rev);
+        int newPosition =  currentPosition-(int) (one_rev/3);
         spindexerMotor.setTargetPosition(newPosition);
         spindexerMotor.setTargetPositionTolerance(3);
         spindexerMotor.setPower(0.2);
@@ -70,9 +70,5 @@ public class spindexer {
     }
     public int getTickCount() {
         return spindexerMotor.getCurrentPosition();
-    }
-
-    public void setPosition(int speed) {
-        spindexerMotor.setTargetPosition(speed);
     }
 }

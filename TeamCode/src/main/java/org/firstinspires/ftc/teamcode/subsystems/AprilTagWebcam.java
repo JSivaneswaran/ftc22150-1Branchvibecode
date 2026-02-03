@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import android.annotation.SuppressLint;
 import android.util.Size;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -70,9 +71,10 @@ public class AprilTagWebcam {
             return 0.0;
         }
 
-        return detectedId.ftcPose.yaw;
+        return Math.toRadians(detectedId.ftcPose.yaw);
     }
 
+    @SuppressLint("DefaultLocale")
     public void display(AprilTagDetection detectedId){
         if(detectedId == null){
             return;

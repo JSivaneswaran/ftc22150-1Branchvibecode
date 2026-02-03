@@ -55,6 +55,6 @@ public class colorOp extends OpMode {
                 .addData("Value", "%.3f", hsvValues2[2]);
         telemetry.addData("Alpha", "%.3f", colors2.alpha);
         telemetry.addLine();
-        telemetry.addData("color", colorSensor.getDetectedColor(c, c1, telemetry));
+        telemetry.addData("color", colorSensor.getDetectedColor(c, c1));
     }
 }
