@@ -10,7 +10,7 @@ public class servo {
     double step = 0.02;
     double position = 1;
     double maxPos = 1;
-    double minPos = 1-0.62;
+    double minPos = 1-0.6;
 
     public void init(HardwareMap hardwareMap){
         leftServo = hardwareMap.get(Servo.class, "left_servo");
@@ -29,10 +29,8 @@ public class servo {
         position = Math.max(minPos, Math.min(maxPos, position));
 
         //only change position if it has changed (don't constantly run servos)
-        if (leftServo.getPosition() != position) {
+        if (leftServo.getPosition() != position || rightServo.getPosition() != position) {
             leftServo.setPosition(position);
-        }
-        if (rightServo.getPosition() != position) {
             rightServo.setPosition(position);
         }
 

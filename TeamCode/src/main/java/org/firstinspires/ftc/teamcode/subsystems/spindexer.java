@@ -59,7 +59,7 @@ public class spindexer {
     }
 
     public int shoot(int currentPosition){
-        int newPosition =  currentPosition-(int) (one_rev/3);
+        int newPosition =  currentPosition-(int) (one_rev/6);
         spindexerMotor.setTargetPosition(newPosition);
         spindexerMotor.setTargetPositionTolerance(3);
         //spindexerMotor.setPower(0.2);
