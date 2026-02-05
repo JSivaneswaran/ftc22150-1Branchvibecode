@@ -18,9 +18,10 @@ public class servoHood extends LinearOpMode {
 
         leftServo = hardwareMap.get(Servo.class, "left_servo");
         rightServo = hardwareMap.get(Servo.class, "right_servo");
+        rightServo.setDirection(Servo.Direction.REVERSE);
 
-        leftServo.setPosition(position);
-        rightServo.setPosition(maxPos - position ); //mechanical offset
+        leftServo.setPosition(1);
+        rightServo.setPosition(1); //mechanical offset
 
         waitForStart();
 

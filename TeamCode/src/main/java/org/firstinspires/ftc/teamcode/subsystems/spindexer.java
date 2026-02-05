@@ -19,7 +19,7 @@ public class spindexer {
         int newPosition = (int) (numRotations * one_rev)/3 + currentPosition;
         spindexerMotor.setTargetPosition(newPosition);
         spindexerMotor.setTargetPositionTolerance(1);
-        spindexerMotor.setPower(0.2);
+        //spindexerMotor.setPower(0.2);
         spindexerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         return newPosition;
@@ -27,7 +27,7 @@ public class spindexer {
 
     public int reset(){
         spindexerMotor.setTargetPosition(0);
-        spindexerMotor.setPower(0.1);
+        //spindexerMotor.setPower(0.2);
         spindexerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         return 0;
     }
@@ -45,9 +45,11 @@ public class spindexer {
         return unstuckPos;
     }
 
-    public void stopMotorIfNeeded(int currentPosition){
+    public void stopMotorIfNeeded(int currentPosition, double power){
         if(isItNotBusy(currentPosition)){
             spindexerMotor.setPower(0);
+        }else{
+            spindexerMotor.setPower(power);
         }
     }
 
@@ -60,7 +62,7 @@ public class spindexer {
         int newPosition =  currentPosition-(int) (one_rev/3);
         spindexerMotor.setTargetPosition(newPosition);
         spindexerMotor.setTargetPositionTolerance(3);
-        spindexerMotor.setPower(0.2);
+        //spindexerMotor.setPower(0.2);
         spindexerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         return newPosition;

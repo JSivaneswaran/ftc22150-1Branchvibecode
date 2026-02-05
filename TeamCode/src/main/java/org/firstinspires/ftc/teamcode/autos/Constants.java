@@ -8,16 +8,21 @@ import com.pedropathing.ftc.localization.Encoder;
 import com.pedropathing.ftc.localization.constants.DriveEncoderConstants;
 import com.pedropathing.paths.PathConstraints;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants().mass(22);
     public static MecanumConstants driveConstants = new MecanumConstants()
-            .maxPower(1)
+            .maxPower(0.5)
             .rightFrontMotorName("backLeft")
             .rightRearMotorName("frontLeft")
             .leftRearMotorName("frontRight")
             .leftFrontMotorName("backRight")
+//            .rightFrontMotorName("backLeft")
+//            .rightRearMotorName("backRight")
+//            .leftRearMotorName("frontRight")
+//            .leftFrontMotorName("frontLeft")
             .leftFrontMotorDirection(DcMotor.Direction.REVERSE)
             .leftRearMotorDirection(DcMotor.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotor.Direction.FORWARD)
@@ -34,18 +39,18 @@ public class Constants {
     }
 
     public static DriveEncoderConstants localizerConstants = new DriveEncoderConstants()
-            .rightFrontMotorName("frontRight")
-            .rightRearMotorName("backRight")
-            .leftRearMotorName("backLeft")
-            .leftFrontMotorName("frontLeft")
+            .rightFrontMotorName("backLeft")
+            .rightRearMotorName("frontLeft")
+            .leftRearMotorName("frontRight")
+            .leftFrontMotorName("backRight")
             .leftFrontEncoderDirection(Encoder.REVERSE)
             .leftRearEncoderDirection(Encoder.REVERSE)
             .rightFrontEncoderDirection(Encoder.FORWARD)
             .rightRearEncoderDirection(Encoder.FORWARD)
             .robotLength(17.5)
-            .robotWidth(16.5)
-            .forwardTicksToInches(1)
-            .strafeTicksToInches(1)
-            .turnTicksToInches(1);
+            .robotWidth(16.5);
+            //.forwardTicksToInches(-0.009968186889561885/5)
+            //.strafeTicksToInches(-0.04043018025092974/5)
+            //.turnTicksToInches(0.014421676935401665);
 
 }

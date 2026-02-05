@@ -13,10 +13,10 @@ public class mecanumDrivee {
 
     public void init(HardwareMap hardwareMap) {
         // motors
-        frontLeftMotor = hardwareMap.get(DcMotor.class, "backRight"); // port
-        frontRightMotor = hardwareMap.get(DcMotor.class, "backLeft"); // port
-        backLeftMotor = hardwareMap.get(DcMotor.class, "frontRight"); // port
-        backRightMotor = hardwareMap.get(DcMotor.class, "frontLeft"); // port
+        frontLeftMotor = hardwareMap.get(DcMotor.class, "frontLeft"); // port
+        frontRightMotor = hardwareMap.get(DcMotor.class, "frontRight"); // port
+        backLeftMotor = hardwareMap.get(DcMotor.class, "backLeft"); // port
+        backRightMotor = hardwareMap.get(DcMotor.class, "backRight"); // port
 
         frontLeftMotor.setDirection(DcMotor.Direction.REVERSE);
         backLeftMotor.setDirection(DcMotor.Direction.REVERSE);
@@ -28,10 +28,10 @@ public class mecanumDrivee {
         backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // cuts power when not in use so wheels kinda rotate for a bit (good for drifting)
-        frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         imu = hardwareMap.get(IMU.class, "imu");
 
@@ -40,7 +40,8 @@ public class mecanumDrivee {
                 RevHubOrientationOnRobot.UsbFacingDirection.UP
         );
 
-        imu.initialize(new IMU.Parameters(revOrientation));
+        IMU.Parameters par = new IMU.Parameters(revOrientation);
+        imu.initialize(par);
         resetIMU();
     }
 
@@ -50,29 +51,15 @@ public class mecanumDrivee {
     public double getYaw(){
         return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
     }
-    public void fieldOrient(double forward, double strafe, double rotate) {
-        double theta = Math.atan2(forward, strafe); // originally forward, strafe
-        double r = Math.hypot(forward, strafe);
 
-        theta = AngleUnit.normalizeRadians(theta - imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS));
+    public void robotOrient(double forward, double strafe, double rotate){
 
-        double newForward = r * Math.cos(theta); //blue its negative
-        double newStrafe = r * Math.sin(theta); //blue its negative
+        double frontLeftPower = forward + strafe + rotate;
+        double frontRightPower = forward - strafe - rotate;
+        double backLeftPower = forward - strafe + rotate;
+        double backRightPower = forward + strafe - rotate;
 
-//        double theta = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-//        double newStrafe = strafe * Math.cos(-theta) - forward * Math.sin(-theta);
-//        double newForward = strafe * Math.sin(-theta) + forward * Math.cos(-theta);
-
-        //newStrafe *= 1.1;
-
-        double frontLeftPower = newForward + newStrafe + rotate;
-        double frontRightPower = newForward - newStrafe - rotate;
-        double backLeftPower = newForward - newStrafe + rotate;
-        double backRightPower = newForward + newStrafe - rotate;
-
-
-        // power normalization (to prevent values going beyond 1.0)
-        double max = 1;
+        double max = 1.0;
         max = Math.max(max, Math.abs(frontLeftPower) * maxSpeed);
         max = Math.max(max, Math.abs(frontRightPower) * maxSpeed);
         max = Math.max(max, Math.abs(backLeftPower) * maxSpeed);
@@ -81,8 +68,25 @@ public class mecanumDrivee {
         //double max = Math.max(Math.abs(newForward) + Math.abs(newStrafe) + Math.abs(rotate), 1.0);
 
         frontLeftMotor.setPower((frontLeftPower/max));
-        frontRightMotor.setPower((frontRightPower/max));
+        frontRightMotor.setPower((frontRightPower /max));
         backLeftMotor.setPower((backLeftPower/max)); //this one
         backRightMotor.setPower((backRightPower/max));
+    }
+    public void fieldOrient(double forward, double strafe, double rotate) {
+        double theta = Math.atan2(forward, strafe); // originally forward, strafe
+        double r = Math.hypot(strafe, forward);
+
+        theta = AngleUnit.normalizeRadians(theta - imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS));
+
+        double newForward = r * Math.sin(theta); //blue its negative
+        double newStrafe = r * Math.cos(theta); //blue its negative
+
+//        double theta = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+//        double newStrafe = strafe * Math.cos(-theta) - forward * Math.sin(-theta);
+//        double newForward = strafe * Math.sin(-theta) + forward * Math.cos(-theta);
+
+//        newForward *= 17.5/16.5;
+
+        robotOrient(newForward, newStrafe, rotate);
     }
 }

@@ -35,12 +35,7 @@ public class mechanum extends OpMode {
         }
         telemetry.addData("Alliance", blue);
         telemetry.addLine();
-        if(blue){
-            drive.fieldOrient(forward, strafe, rotate);
-        }else{
-            drive.fieldOrient(-forward, -strafe, rotate);
-        }
-
+        drive.robotOrient(forward, strafe, rotate);
         //inting.powerSet(gamepad1.left_trigger);
 
     }

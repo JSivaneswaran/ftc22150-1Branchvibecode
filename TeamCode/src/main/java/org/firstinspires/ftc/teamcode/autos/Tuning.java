@@ -234,7 +234,7 @@ class LateralTuner extends OpMode {
 
     @Override
     public void init() {
-        follower.setStartingPose(new Pose(36,36));
+        follower.setStartingPose(new Pose(72,72));
         follower.update();
         drawOnlyCurrent();
     }
@@ -282,7 +282,7 @@ class TurnTuner extends OpMode {
 
     @Override
     public void init() {
-        follower.setStartingPose(new Pose(36,36));
+        follower.setStartingPose(new Pose(72,72));
         follower.update();
         drawOnlyCurrent();
     }

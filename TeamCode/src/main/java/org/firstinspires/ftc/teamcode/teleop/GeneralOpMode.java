@@ -15,6 +15,8 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 @TeleOp(name = "Driver", group = "Teleop")
 public class GeneralOpMode extends OpMode {
     private final spindexer spin = new spindexer();
+    private boolean aprilTagClosed = false;
+    private double power = 0.3;
     private final servo all_servo = new servo();
     private int currentPosition = 0;
     private final intake mainIntake = new intake();
@@ -71,6 +73,8 @@ public class GeneralOpMode extends OpMode {
         aprilTagWebcam.init(hardwareMap, telemetry);
         shooter.init(hardwareMap);
 
+        aprilTagWebcam.setCameraOn();
+
         for(int j = 0; j < 3; j++){
             for(int i = 0; i < 2; i++) {
                 module[j][i].init(hardwareMap, colorSensorModules[j][i], greenMax[j][i], purpleMin[j][i], blankDistance[j][i]);
@@ -83,7 +87,7 @@ public class GeneralOpMode extends OpMode {
 
         updateDrive();
 
-        if(greenIndexGoal != -1) {updateAprilTag();}
+        if(!aprilTagClosed) {updateAprilTag();}
 
         updateIntake();
 
@@ -91,7 +95,7 @@ public class GeneralOpMode extends OpMode {
 
         updateServo();
 
-        spin.stopMotorIfNeeded(currentPosition);
+        spin.stopMotorIfNeeded(currentPosition, power);
 
         if(auton && intakeMode) {
             updateSpindexerAutomation();
@@ -132,7 +136,6 @@ public class GeneralOpMode extends OpMode {
 
         drive.fieldOrient(forward, strafe, rotate);
 
-        telemetry.addData("IMU YAW", drive.getYaw());
         if(gamepad1.left_bumper){
             drive.resetIMU();
         }
@@ -153,42 +156,48 @@ public class GeneralOpMode extends OpMode {
 
     public void updateSpindexerAutomation(){
         updateColor();
-        if(intakeMode && currentColor[0] != colorSensor.DetectedColor.UNKNOWN && spin.isItNotBusy(currentPosition)) {
-            colorSensor.DetectedColor currcolor = currentColor[0];
-            currentColor[0] = currentColor[2];
-            currentColor[2] = currentColor[1];
-            currentColor[1] = currcolor;
-            currentPosition = spin.rotate(1, currentPosition);
-            if(currentColor[0] != colorSensor.DetectedColor.UNKNOWN){
+        if(currentColor[0] != colorSensor.DetectedColor.UNKNOWN && spin.isItNotBusy(currentPosition)) {
+            if(currentColor[2] != colorSensor.DetectedColor.UNKNOWN){
                 intakeMode = false;
                 currentPosition = spin.rotate(colorSensor.numSpin(currentColor, greenIndexGoal), currentPosition);
+            }else{
+                colorSensor.DetectedColor currcolor = currentColor[0];
+                currentColor[0] = currentColor[2];
+                currentColor[2] = currentColor[1];
+                currentColor[1] = currcolor;
+                currentPosition = spin.rotate(1, currentPosition);
             }
-
+            power = 0.3;
         }
     }
     public void updateColor(){
         currentColor[0] = colorSensor.getDetectedColor(module[0][0], module[0][1]);
+
+        if(gamepad1.leftStickButtonWasPressed()){
+            currentColor[1] = colorSensor.getDetectedColor(module[1][0], module[1][1]);
+            currentColor[2] = colorSensor.getDetectedColor(module[2][0], module[2][1]);
+        }
     }
 
     public void updateShooter(){
         shooter.runShooter(gamepad1.right_trigger);
-        if(gamepad1.xWasPressed()) {
+        if(gamepad1.x) {
+            aprilTagWebcam.setCameraOn();
+            aprilTagClosed = false;
             AprilTagDetection id20 = aprilTagWebcam.getTagId(20);
             if(id20 != null) {
-                double yaw = aprilTagWebcam.getAngle(id20);
-                double bearing = aprilTagWebcam.getBearing(id20);
-                double angleChange = 0;
-                if (bearing - yaw < 15 && bearing-yaw > -15){
-                    angleChange = -yaw;
-                }else{
-                    if(bearing < -15){
-                        angleChange = -15 - bearing;
-                    }else if(bearing > 15){
-                        angleChange = 15 - bearing;
-                    }
+                double x = aprilTagWebcam.getX(id20);
+                double y  = aprilTagWebcam.getY(id20);
+
+                if(x + 10 > 5 ){
+                    drive.fieldOrient(0, 0, 0.2);
+                }else if(x + 10 < -5){
+                    drive.fieldOrient(0,0, -0.2);
                 }
-                drive.fieldOrient(0, 0, angleChange);
             }
+        }else{
+            aprilTagWebcam.setCameraOff();
+            aprilTagClosed = true;
         }
     }
     public void updateSpindexer(){
@@ -198,20 +207,25 @@ public class GeneralOpMode extends OpMode {
         //spinner testing code
         if(gamepad2.dpadRightWasPressed()||gamepad1.dpadRightWasPressed()){
             currentPosition = spin.resetRotation(currentPosition);
+            power = 0.2;
         }
 
         if(gamepad1.bWasPressed()){
             currentPosition = spin.rotate(1, currentPosition);
+            power = 0.2;
         }else if(gamepad1.yWasPressed()){
             // alligns spindexer
             currentPosition = spin.rotate(colorSensor.numSpin(currentColor, greenIndexGoal), currentPosition);
+            power = 0.2;
         }else if(gamepad1.aWasPressed()){
             currentPosition = spin.reset();
+            power = 0.5;
             intakeMode = true;
         }
 
         if(gamepad2.rightBumperWasPressed() || gamepad1.rightBumperWasPressed()){
             currentPosition = spin.shoot(currentPosition);
+            power = 0.2;
         }
     }
 
@@ -221,18 +235,29 @@ public class GeneralOpMode extends OpMode {
         AprilTagDetection id22 = aprilTagWebcam.getTagId(22);
         AprilTagDetection id23 = aprilTagWebcam.getTagId(23);
 
+        aprilTagWebcam.display(id21);
+        aprilTagWebcam.display(id22);
+        aprilTagWebcam.display(id23);
+
+
         if(id21 != null){
             greenIndexGoal = 0;
+            aprilTagWebcam.setCameraOff();
+            aprilTagClosed = true;
         }else if(id22 != null){
             greenIndexGoal = 1;
+            aprilTagWebcam.setCameraOff();
+            aprilTagClosed = true;
         }else if(id23 != null){
             greenIndexGoal = 2;
+            aprilTagWebcam.setCameraOff();
+            aprilTagClosed = true;
         }
     }
 
     public void updateServo(){
-        boolean upPressed   = gamepad2.dpadUpWasPressed();
-        boolean downPressed = gamepad2.dpadDownWasPressed();
+        boolean upPressed   = gamepad2.dpad_up;
+        boolean downPressed = gamepad2.dpad_down;
 
         if (upPressed) {
             all_servo.changePosition(1);
@@ -244,6 +269,7 @@ public class GeneralOpMode extends OpMode {
     }
 
     public void updateAllTelemetry(){
+        telemetry.addData("is it busy", spin.isItNotBusy(currentPosition));
         telemetry.addLine("INTAKE");
         telemetry.addData("intake mode", intakeMode);
         telemetry.addLine("--------------------------------------------------------");

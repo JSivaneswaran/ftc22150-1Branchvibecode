@@ -40,8 +40,16 @@ public class AprilTagWebcam {
         builder.addProcessor(aprilTagProcessor);
 
         visionPortal = builder.build();
+        visionPortal.setProcessorEnabled(aprilTagProcessor, true);
     }
 
+    public void setCameraOn(){
+        visionPortal.setProcessorEnabled(aprilTagProcessor, true);
+    }
+
+    public void setCameraOff(){
+        visionPortal.setProcessorEnabled(aprilTagProcessor, false);
+    }
     public void update(){
         tagsDetected = aprilTagProcessor.getDetections();
     }
@@ -74,12 +82,19 @@ public class AprilTagWebcam {
         return detectedId.ftcPose.yaw;
     }
 
-    public double getBearing(AprilTagDetection detectedId){
+    public double getX(AprilTagDetection detectedId){
         if(detectedId == null){
             return 0.0;
         }
 
-        return detectedId.ftcPose.bearing;
+        return detectedId.ftcPose.x;
+    }
+    public double getY(AprilTagDetection detectionId){
+        if(detectionId == null){
+            return 0;
+        }
+
+        return detectionId.ftcPose.y;
     }
 
     @SuppressLint("DefaultLocale")
