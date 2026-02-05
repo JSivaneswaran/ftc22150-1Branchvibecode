@@ -231,8 +231,8 @@ public class GeneralOpMode extends OpMode {
     }
 
     public void updateServo(){
-        boolean upPressed   = gamepad2.dpadUpWasPressed();
-        boolean downPressed = gamepad2.dpadDownWasPressed();
+        boolean upPressed   = gamepad2.dpad_up;
+        boolean downPressed = gamepad2.dpad_down;
 
         if (upPressed) {
             all_servo.changePosition(1);
@@ -240,8 +240,9 @@ public class GeneralOpMode extends OpMode {
             all_servo.changePosition(-1);
         }
 
-
     }
+
+
 
     public void updateAllTelemetry(){
         telemetry.addLine("INTAKE");
@@ -257,5 +258,11 @@ public class GeneralOpMode extends OpMode {
         telemetry.addLine("--------------------------------------------------------");
         telemetry.addLine("SPINDEXER AUTON MODE");
         telemetry.addData("Auton Mode", auton);
+
+        telemetry.addLine("--------------------------------------------------------");
+        telemetry.addLine("SERVO POSITIONS");
+
+        telemetry.addData("RS ppos", all_servo.getRightPos());
+        telemetry.addData("LS ppos",all_servo.getLeftPos());
     }
 }
