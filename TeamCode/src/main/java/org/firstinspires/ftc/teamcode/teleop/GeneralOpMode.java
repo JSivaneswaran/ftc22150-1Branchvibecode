@@ -265,8 +265,9 @@ public class GeneralOpMode extends OpMode {
             all_servo.changePosition(-1);
         }
 
-
     }
+
+
 
     public void updateAllTelemetry(){
         telemetry.addData("is it busy", spin.isItNotBusy(currentPosition));
@@ -283,5 +284,11 @@ public class GeneralOpMode extends OpMode {
         telemetry.addLine("--------------------------------------------------------");
         telemetry.addLine("SPINDEXER AUTON MODE");
         telemetry.addData("Auton Mode", auton);
+
+        telemetry.addLine("--------------------------------------------------------");
+        telemetry.addLine("SERVO POSITIONS");
+
+        telemetry.addData("RS ppos", all_servo.getRightPos());
+        telemetry.addData("LS ppos",all_servo.getLeftPos());
     }
 }
