@@ -73,17 +73,17 @@ public class mecanumDrivee {
         backRightMotor.setPower((backRightPower/max));
     }
     public void fieldOrient(double forward, double strafe, double rotate) {
-        double theta = Math.atan2(forward, strafe); // originally forward, strafe
-        double r = Math.hypot(strafe, forward);
+//        double theta = Math.atan2(forward, strafe); // originally forward, strafe
+//        double r = Math.hypot(strafe, forward);
+//
+//        theta = AngleUnit.normalizeRadians(theta - imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS));
+//
+//        double newForward = r * Math.sin(theta); //blue its negative
+//        double newStrafe = r * Math.cos(theta); //blue its negative
 
-        theta = AngleUnit.normalizeRadians(theta - imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS));
-
-        double newForward = r * Math.sin(theta); //blue its negative
-        double newStrafe = r * Math.cos(theta); //blue its negative
-
-//        double theta = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-//        double newStrafe = strafe * Math.cos(-theta) - forward * Math.sin(-theta);
-//        double newForward = strafe * Math.sin(-theta) + forward * Math.cos(-theta);
+        double theta = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        double newStrafe = strafe * Math.cos(-theta) - forward * Math.sin(-theta);
+        double newForward = strafe * Math.sin(-theta) + forward * Math.cos(-theta);
 
 //        newForward *= 17.5/16.5;
 
