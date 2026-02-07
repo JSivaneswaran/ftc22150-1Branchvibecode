@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 public class simpleShooter {
     private DcMotorEx mainShooter;
 
+    public int velocity = 2000;
     double F = 5.0;
     double P = 10.1;
 
@@ -21,14 +22,17 @@ public class simpleShooter {
         mainShooter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidf);
     }
 
-
+    public void changeVelocity(int step){
+        velocity += step * 100;
+    }
     public void runShooter(double vel){
+        // 2500 at 200cm
+        //
         if(vel < 0.1){
             mainShooter.setVelocity(0);
         }
-
         else{
-            mainShooter.setVelocity(4500);
+            mainShooter.setVelocity(velocity);
         }
     }
 
