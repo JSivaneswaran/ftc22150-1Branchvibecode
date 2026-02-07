@@ -156,10 +156,9 @@ public class GeneralOpMode extends OpMode {
             intake = !intake;
         }
 
-        double power = gamepad1.left_trigger;
-        if (power > 0) {
-            if (intake) mainIntake.proper(power);
-            else mainIntake.reverse(power);
+        if (gamepad1.left_trigger > 0) {
+            if (intake) mainIntake.proper(gamepad1.left_trigger);
+            else mainIntake.reverse(gamepad1.left_trigger);
         } else {
             mainIntake.stop();
         }
