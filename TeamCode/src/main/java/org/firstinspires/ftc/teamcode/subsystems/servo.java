@@ -26,7 +26,13 @@ public class servo {
 
         position += step * i;
 
-        position = Math.max(minPos, Math.min(maxPos, position));
+        if(i == 1){
+            position = 0.64;
+        }else if (i == -1){
+            position = 1.0;
+        }
+
+        //position = Math.max(minPos, Math.min(maxPos, position));
 
         //only change position if it has changed (don't constantly run servos)
         if (leftServo.getPosition() != position || rightServo.getPosition() != position) {
