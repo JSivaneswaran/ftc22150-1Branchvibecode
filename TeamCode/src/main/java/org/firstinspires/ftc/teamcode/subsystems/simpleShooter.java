@@ -35,4 +35,8 @@ public class simpleShooter {
     public void setPosition(int speed) {
         mainShooter.setTargetPosition(speed);
     }
+
+    public void stop() {
+        mainShooter.setPower(0);
+    }
 }

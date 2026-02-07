@@ -111,11 +111,10 @@ public class GeneralOpMode extends OpMode {
         updateAllTelemetry();
 
         if(gamepad2.aWasPressed()){
-            shooter.changeVelocity(1);
+            shooter.setPosition(1);
         }else if(gamepad2.xWasPressed()){
-            shooter.changeVelocity(-1);
+            shooter.setPosition(-1);
         }
-        telemetry.addData("Velocity", shooter.velocity);
     }
 
     public void updateDrive(){
