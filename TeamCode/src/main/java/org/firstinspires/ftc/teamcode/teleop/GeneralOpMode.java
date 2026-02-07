@@ -29,7 +29,7 @@ public class GeneralOpMode extends OpMode {
 
     // ----------
     private final int[] aprilTagIDs = {21, 22, 23};
-    private boolean blueSide = true;
+    private boolean blueSide = false;
     private double power = 0.3;
     private VoltageSensor batteryVoltageSensor;
     private int currentPosition = 0;
@@ -72,7 +72,6 @@ public class GeneralOpMode extends OpMode {
 
     private int greenIndexGoal = -1;
     private boolean auton = false;
-    private mecanumDrive ;
 
     @Override
     public void init() {
@@ -114,10 +113,15 @@ public class GeneralOpMode extends OpMode {
 
         updateAllTelemetry();
 
+        updateBatteryVolt();
+
         if(gamepad2.aWasPressed()){
-            shooter.setPosition(1);
+            currentPosition = spin.setTarget(currentPosition + 5, 0.2, 1);
         }else if(gamepad2.xWasPressed()){
-            shooter.setPosition(-1);
+            currentPosition = spin.setTarget(currentPosition - 5, 0.2, 1);
+        }else if(gamepad2.bWasPressed()){
+            currentPosition = 0;
+            spin.resetEncoder();
         }
     }
 
@@ -213,7 +217,7 @@ public class GeneralOpMode extends OpMode {
 
     public void updateShooter() {
         if (gamepad1.right_trigger > 0.1) {
-            shooter.runShooter(gamepad1.right_trigger, velocity);
+            shooter.runShooter(velocity);
         } else {
             shooter.stop();
         }

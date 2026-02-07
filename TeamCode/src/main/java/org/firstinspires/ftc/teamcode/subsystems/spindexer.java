@@ -16,8 +16,7 @@ public class spindexer {
         spindexerMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         spindexerMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
-
-    private int setTarget(int targetPosition, double power, int tolerance) {
+    public int setTarget(int targetPosition, double power, int tolerance) {
         spindexerMotor.setTargetPosition(targetPosition);
         spindexerMotor.setTargetPositionTolerance(tolerance);
         spindexerMotor.setPower(power);
@@ -31,7 +30,7 @@ public class spindexer {
     }
 
     public int shoot(int currentPosition, double power) {
-        int newPosition = currentPosition - (int)((ONE_REV_TICKS) / 6);
+        int newPosition = currentPosition - (int)((ONE_REV_TICKS) / 3);
         return setTarget(newPosition, power, 1);
     }
     public int reset(double power) {

@@ -22,14 +22,9 @@ public class simpleShooter {
     }
 
 
-    public void runShooter(double vel, double velocity){
-        if(vel < 0.1){
-            mainShooter.setVelocity(0);
-        }
+    public void runShooter(double velocity){
 
-        else{
             mainShooter.setVelocity(velocity);
-        }
     }
 
     public void setPosition(int speed) {

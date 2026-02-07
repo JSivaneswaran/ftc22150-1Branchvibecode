@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystems.AprilTagWebcam;
 import org.firstinspires.ftc.teamcode.subsystems.colorSensor;
@@ -15,6 +16,7 @@ import org.firstinspires.ftc.teamcode.teleop.GeneralOpMode;
 @Autonomous(name = "farAuto", group = "Autonomous")
 public class farAuto extends OpMode {
 
+    private ElapsedTime spinUp = new ElapsedTime();
     private AprilTagWebcam aprilTagWebcam = new AprilTagWebcam();
     private simpleShooter shooter = new simpleShooter();
     private spindexer spin = new spindexer();
@@ -69,7 +71,20 @@ public class farAuto extends OpMode {
             drive.stop();
             drive.fieldOrient(0,0,0);
         }
-        aprilTagWebcam.AutoAlign(true);
+        double[] d = aprilTagWebcam.AutoAlign(true);
+
+        spinUp.reset();
+        drive.fieldOrient(0, 0, d[0]);
+        hood.changePosition((int)d[2]);
+        shooter.runShooter(d[1]);
+
+        while(spinUp.seconds() <3.0) {
+            //literally just waste your time
+        }
+
+        currentPosition = spin.shoot(currentPosition, 0.3);
+
+        //shoot spindexer twice
 
         /*
 

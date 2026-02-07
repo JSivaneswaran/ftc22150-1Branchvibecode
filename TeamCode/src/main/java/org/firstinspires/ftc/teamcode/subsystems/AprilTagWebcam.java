@@ -78,7 +78,8 @@ public class AprilTagWebcam {
             double rotate = 0.0;
             double velocity, servo;
 
-            double x,y;
+            double x = 0;
+            double y = 0;
             if (id20 != null && blueSide ) {
                 x = getX(id20);
                 y = getY(id20);}
