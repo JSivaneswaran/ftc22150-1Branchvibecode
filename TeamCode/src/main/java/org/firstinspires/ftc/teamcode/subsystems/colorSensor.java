@@ -9,9 +9,10 @@ import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.SwitchableLight;
 
 public class colorSensor {
+
     public NormalizedColorSensor sensor;
 
-    public enum DetectedColor{
+    public enum DetectedColor {
         PURPLE,
         GREEN,
         UNKNOWN
@@ -19,66 +20,61 @@ public class colorSensor {
 
     private int maxGreen;
     private int minPurple;
-    private double blank_dist;
+    private double blankDist;
 
-    public void init(HardwareMap hardwareMap, String device, int maxGreen, int minPurple, double blank_dist) {
+    public void init(HardwareMap hardwareMap, String device, int maxGreen, int minPurple, double blankDist) {
         sensor = hardwareMap.get(NormalizedColorSensor.class, device);
-        if (sensor instanceof SwitchableLight) {
-            ((SwitchableLight) sensor).enableLight(false);
-        }
+        if (sensor instanceof SwitchableLight) ((SwitchableLight)sensor).enableLight(false);
         sensor.setGain(30);
 
         this.maxGreen = maxGreen;
         this.minPurple = minPurple;
-        this.blank_dist = blank_dist;
+        this.blankDist = blankDist;
     }
 
-    // Detects the color
-    public static DetectedColor getDetectedColor(colorSensor cs1, colorSensor cs2){
+    private float getHue() {
+        NormalizedRGBA colors = sensor.getNormalizedColors();
+        float[] hsv = new float[3];
+        Color.colorToHSV(colors.toColor(), hsv);
+        return hsv[0];
+    }
 
-        NormalizedRGBA colors = cs1.sensor.getNormalizedColors();
-        NormalizedRGBA colors2 = cs2.sensor.getNormalizedColors();
+    private double getDistance() {
+        return ((OpticalDistanceSensor) sensor).getLightDetected();
+    }
 
-        float[] hsvValues1 = new float[3];
-        float[] hsvValues2 = new float[3];
-        Color.colorToHSV(colors.toColor(), hsvValues1);
-        Color.colorToHSV(colors2.toColor(), hsvValues2);
+    public static DetectedColor getDetectedColor(colorSensor cs1, colorSensor cs2) {
+        double distance = Math.min(cs1.getDistance(), cs2.getDistance());
+        if (distance < Math.max(cs1.blankDist, cs2.blankDist)) return DetectedColor.UNKNOWN;
 
-        double distance = Math.min(((OpticalDistanceSensor)cs1.sensor).getLightDetected(),
-                ((OpticalDistanceSensor) cs2.sensor).getLightDetected());
+        float hue1 = cs1.getHue();
+        float hue2 = cs2.getHue();
 
-        DetectedColor color = DetectedColor.UNKNOWN;
-        if(distance < Math.max(cs1.blank_dist, cs2.blank_dist)){
-            return color;
+        if (hue1 > cs1.minPurple || hue2 > cs2.minPurple) {
+            return DetectedColor.PURPLE;
         }
-        // telemetry.addData("Overall Distance", distance);
-        if(hsvValues1[0] > cs1.minPurple || hsvValues2[0] > cs2.minPurple){
-            color = DetectedColor.PURPLE;
-        } else if (hsvValues1[0] < cs1.maxGreen || hsvValues2[0] < cs2.maxGreen) {
-            color = DetectedColor.GREEN;
+        if (hue1 < cs1.maxGreen || hue2 < cs2.maxGreen){
+            return DetectedColor.GREEN;
         }
 
-        // figures out the color bv
-        return color;
+        return DetectedColor.UNKNOWN;
     }
 
     /**
-     * Returns an array of size 3 that determines what modules should the bot rotate
-     * in order to execute the command effeciently. It optimizes the path the bot should take.
+     * Determines how many rotations the spindexer should make to align green balls
      *
-     * @param colors The current colors in each module from module 0,1,2 in that order
-     * @param greenIndex The index that the green ball should be in
-     * @return an array of int size 3 that determines order of shooting
-     **/
+     * @param colors The current colors in slots 0,1,2
+     * @param greenIndex The target index for green ball
+     * @return number of rotations (0-2)
+     */
     public static int numSpin(DetectedColor[] colors, int greenIndex){
         int currentGreenIndex = 0;
-
-        for(int i = 0; i < 3; i++){
-           if (colors[i] == DetectedColor.GREEN) {
-               currentGreenIndex = i;
-           }
+        for(int i = 0; i < colors.length; i++){
+            if(colors[i] == DetectedColor.GREEN){
+                currentGreenIndex = i;
+                break; // exit early once found
+            }
         }
-
-        return (greenIndex-currentGreenIndex + 3)%3;
+        return (greenIndex - currentGreenIndex + 3) % 3;
     }
 }

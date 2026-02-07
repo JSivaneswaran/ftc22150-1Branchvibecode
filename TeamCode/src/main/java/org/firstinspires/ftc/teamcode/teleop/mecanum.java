@@ -4,13 +4,12 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.intake;
-import org.firstinspires.ftc.teamcode.subsystems.mecanumDrivee;
+import org.firstinspires.ftc.teamcode.subsystems.mecanumDrive;
 
-@TeleOp(name = "TestDrive", group = "Teleop")
-public class mechanum extends OpMode {
+@TeleOp(name = "testDrive", group = "Teleop")
+public class mecanum extends OpMode {
 
-    private final mecanumDrivee drive = new mecanumDrivee();
-    private final intake inting = new intake();
+    private final mecanumDrive drive = new mecanumDrive();
     double forward, strafe, rotate;
 
     private boolean blue = true;
@@ -35,8 +34,9 @@ public class mechanum extends OpMode {
         }
         telemetry.addData("Alliance", blue);
         telemetry.addLine();
-        drive.robotOrient(forward, strafe, rotate);
-        //inting.powerSet(gamepad1.left_trigger);
+
+        drive.fieldOrient(forward, strafe, rotate);
+
 
     }
 }

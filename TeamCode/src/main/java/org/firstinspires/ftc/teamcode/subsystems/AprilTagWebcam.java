@@ -54,10 +54,6 @@ public class AprilTagWebcam {
         tagsDetected = aprilTagProcessor.getDetections();
     }
 
-    public List<AprilTagDetection> getTagsDetected() {
-        return tagsDetected;
-    }
-
     public AprilTagDetection getTagId(int id){
         for(AprilTagDetection i : tagsDetected){
             if(i.id == id){
@@ -95,6 +91,10 @@ public class AprilTagWebcam {
         }
 
         return detectionId.ftcPose.y;
+    }
+
+    public List<AprilTagDetection> getTagsDetected() {
+        return tagsDetected;
     }
 
     @SuppressLint("DefaultLocale")

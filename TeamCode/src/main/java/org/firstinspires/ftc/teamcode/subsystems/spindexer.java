@@ -5,72 +5,62 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class spindexer {
+
     private DcMotorEx spindexerMotor;
-    private final double one_rev = 384.5;
+    private final double ONE_REV_TICKS = 384.5;
+    private final int rotateOne = 128;
 
-
-    public void init(HardwareMap hardwareMap){
+    public void init(HardwareMap hardwareMap) {
         spindexerMotor = hardwareMap.get(DcMotorEx.class, "mainIntake");
         spindexerMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         spindexerMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
-    public int rotate(int numRotations, int currentPosition){
-        int newPosition = (int) (numRotations * one_rev)/3 + currentPosition;
-        spindexerMotor.setTargetPosition(newPosition);
-        spindexerMotor.setTargetPositionTolerance(1);
-        //spindexerMotor.setPower(0.2);
+    private int setTarget(int targetPosition, double power, int tolerance) {
+        spindexerMotor.setTargetPosition(targetPosition);
+        spindexerMotor.setTargetPositionTolerance(tolerance);
+        spindexerMotor.setPower(power);
         spindexerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        return newPosition;
+        return targetPosition;
     }
 
-    public int reset(){
-        spindexerMotor.setTargetPosition(0);
-        //spindexerMotor.setPower(0.2);
-        spindexerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        return 0;
-    }
-    public int resetRotation(int currentPos){
-        int tick = getTickCount()/128 * 128;
-        int unstuckPos;
-        if(getTickCount() < currentPos){
-            unstuckPos = tick;
-        }else{
-            unstuckPos = tick + 128;
-        }
-        spindexerMotor.setTargetPosition(unstuckPos);
-        //spindexerMotor.setPower(0.1);
-        spindexerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        return unstuckPos;
+    public int rotate(int numRotations, int currentPosition, double power) {
+        int newPosition = currentPosition + (int)((numRotations * ONE_REV_TICKS) / 3);
+        return setTarget(newPosition, power, 1);
     }
 
-    public void stopMotorIfNeeded(int currentPosition, double power){
-        if(isItNotBusy(currentPosition)){
-            spindexerMotor.setPower(0);
-        }else{
-            spindexerMotor.setPower(power);
-        }
+    public int reset(double power) {
+        return setTarget(0, power, 1);
     }
 
-    public boolean isItNotBusy(int currentPosition){
-        int currentTick = getTickCount();
-        return currentPosition + 3 > currentTick && currentPosition - 3 < currentTick;
+    public int resetRotation(int currentPosition, double power) {
+        int tick = getTickCount() / rotateOne * rotateOne;
+        int target = (getTickCount() < currentPosition) ? tick : tick + rotateOne;
+        return setTarget(target, power, 1);
     }
 
-    public int shoot(int currentPosition){
-        int newPosition =  currentPosition-(int) (one_rev/6);
-        spindexerMotor.setTargetPosition(newPosition);
-        spindexerMotor.setTargetPositionTolerance(3);
-        //spindexerMotor.setPower(0.2);
-        spindexerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        return newPosition;
+    public int shoot(int currentPosition, double power) {
+        int newPosition = currentPosition - (int)(ONE_REV_TICKS / 6);
+        return setTarget(newPosition, power, 3);
     }
-    public void resetEncoder(){
+
+    public void stopIfNeeded(int targetPosition, double power) {
+        spindexerMotor.setPower(isAtTarget(targetPosition) ? 0 : power);
+    }
+
+    public boolean isAtTarget(int targetPosition) { // isBusy
+        return Math.abs(getTickCount() - targetPosition) <= 3;
+    }
+
+    public void resetEncoder() {
         spindexerMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
+
     public int getTickCount() {
         return spindexerMotor.getCurrentPosition();
+    }
+
+    public void stop() {
+        spindexerMotor.setPower(0);
     }
 }

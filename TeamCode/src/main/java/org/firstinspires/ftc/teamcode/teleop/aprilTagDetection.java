@@ -8,21 +8,22 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 @TeleOp(name = "webcamTesting" , group = "TeleOp")
 public class aprilTagDetection extends OpMode {
-    AprilTagWebcam aprilTagWebcam = new AprilTagWebcam();
+    AprilTagWebcam webcam = new AprilTagWebcam();
     double yaw = -1000;
+
     @Override
     public void init() {
-        aprilTagWebcam.init(hardwareMap, telemetry);
+        webcam.init(hardwareMap, telemetry);
     }
 
     @Override
     public void loop() {
-        aprilTagWebcam.update();
-        AprilTagDetection id20 = aprilTagWebcam.getTagId(20);
-        aprilTagWebcam.display(id20);
+        webcam.update();
+        AprilTagDetection id20 = webcam.getTagId(20);
+        webcam.display(id20);
 
         if(id20 != null) {
-            aprilTagWebcam.getAngle(id20);
+            webcam.getAngle(id20);
         }
         telemetry.addData("yaw", yaw);
 

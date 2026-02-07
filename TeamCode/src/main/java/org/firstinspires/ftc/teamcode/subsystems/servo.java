@@ -10,7 +10,7 @@ public class servo {
     double step = 0.02;
     double position = 1;
     double maxPos = 1;
-    double minPos = 1-0.6;
+    double minPos = 0.4; // 1-0.6
 
     public void init(HardwareMap hardwareMap){
         leftServo = hardwareMap.get(Servo.class, "left_servo");

@@ -12,19 +12,19 @@ public class intake {
         intakeMotor = hardwareMap.get(DcMotorEx.class, "mainOrbitor");
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        intakeMotor.setDirection(DcMotor.Direction.REVERSE);
     }
 
-    public void powerSet(double triggerOutput) {
-        //intakeMotor.setVelocity(1000);
-        intakeMotor.setPower(1 * triggerOutput);
-    }
-
-    public void reverse(){
+    public void reverse(double trigger){
         intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        intakeMotor.setPower(trigger);
     }
-    public void proper(){
+    public void proper(double trigger){
         intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        intakeMotor.setPower(trigger);
+    }
+
+    public void stop() {
+        intakeMotor.setPower(0);
     }
 
 }
