@@ -1,23 +1,25 @@
 package org.firstinspires.ftc.teamcode.autos;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.subsystems.AprilTagWebcam;
 import org.firstinspires.ftc.teamcode.subsystems.colorSensor;
 import org.firstinspires.ftc.teamcode.subsystems.intake;
 import org.firstinspires.ftc.teamcode.subsystems.mecanumDrive;
+import org.firstinspires.ftc.teamcode.subsystems.servo;
 import org.firstinspires.ftc.teamcode.subsystems.simpleShooter;
 import org.firstinspires.ftc.teamcode.subsystems.spindexer;
 
-@Autonomous(name = "Auto shoot", group = "Autonomous")
-public class autoShoot extends OpMode {
+@Autonomous(name = "closeAuto", group = "Autonomous")
+public class closeAuto extends OpMode {
 
     private AprilTagWebcam aprilTagWebcam = new AprilTagWebcam();
     private simpleShooter shooter = new simpleShooter();
     private spindexer spin = new spindexer();
     private intake mainIntake = new intake();
     private mecanumDrive drive = new mecanumDrive();
+    private servo hood = new servo();
 
     private colorSensor.DetectedColor[] currentColor = new colorSensor.DetectedColor[3];
 
@@ -27,6 +29,7 @@ public class autoShoot extends OpMode {
     private boolean shotFirst = false;
     private boolean shotSecond = false;
     private boolean shotThird = false;
+    private boolean autoMove = true;
 
     @Override
     public void init() {
@@ -35,7 +38,9 @@ public class autoShoot extends OpMode {
         shooter.init(hardwareMap);
         spin.init(hardwareMap);
         mainIntake.init(hardwareMap);
+        hood.init((hardwareMap));
         aprilTagWebcam.init(hardwareMap, telemetry);
+        drive.init(hardwareMap);
 
         for(int i = 0; i < 3; i++) {
             currentColor[i] = colorSensor.DetectedColor.UNKNOWN;
@@ -46,6 +51,25 @@ public class autoShoot extends OpMode {
 
     @Override
     public void loop() {
+
+        if (hood.getLeftPos() != hood.maxPos){
+            hood.changePosition(1);
+        }
+
+        if (autoMove) {
+            for (int i = 0; i < 100; i++) {
+                drive.setPower(0.5);
+                drive.fieldOrient(0.2, 0.2, 0);
+            }
+            autoMove = !autoMove;
+        }
+
+        if (!autoMove) {
+            drive.stop();
+            drive.fieldOrient(0,0,0);
+        }
+
+        /*
 
         if (greenIndexGoal == -1) {
             aprilTagWebcam.update();
@@ -66,12 +90,22 @@ public class autoShoot extends OpMode {
             return;
         }
 
+
+
         // values needa be tuned green and purple to effectively detect those colors
         if (!sorted) {
             currentPosition = spin.rotate(greenIndexGoal, currentPosition, 0.3);
             sorted = true;
             telemetry.update();
             return;
+        }
+
+
+
+        try{
+            Thread.sleep(20 * 1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException("sleeping failed");
         }
 
         // Shoot all 3 balls one by one, delay required???
@@ -98,6 +132,8 @@ public class autoShoot extends OpMode {
 
         shooter.runShooter(0);
         telemetry.update();
+
+*/
 
     }
 }

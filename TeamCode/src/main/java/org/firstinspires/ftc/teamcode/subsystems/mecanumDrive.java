@@ -70,6 +70,13 @@ public class mecanumDrive {
         imu.resetYaw();
     }
 
+    public void setPower(double power) {
+        frontLeftMotor.setPower(power);
+        frontRightMotor.setPower(power);
+        backLeftMotor.setPower(power);
+        backRightMotor.setPower(power);
+    }
+
     public void stop() {
         frontLeftMotor.setPower(0);
         frontRightMotor.setPower(0);

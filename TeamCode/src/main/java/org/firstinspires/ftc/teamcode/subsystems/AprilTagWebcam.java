@@ -70,6 +70,42 @@ public class AprilTagWebcam {
         }
     }
 
+    public double[] AutoAlign(boolean blueSide){
+
+            AprilTagDetection id20 = getTagId(20);
+            AprilTagDetection id24 = getTagId(24);
+
+            double rotate = 0.0;
+            double velocity, servo;
+
+            double x,y;
+            if (id20 != null && blueSide ) {
+                x = getX(id20);
+                y = getY(id20);}
+            else if(id24 != null && !blueSide){
+                x = getX(id24);
+                y = getY(id24);
+            }
+
+            if (x + 10 > 5) {
+                rotate = 0.5;
+            } else if (x + 10 < -5) {
+                rotate = -0.5;
+            }
+            if (y > 200){
+                velocity = 4500;
+                servo = 1;
+            }else if(y > 150){
+                velocity = 2500;
+                servo = -1;
+            }else{
+                velocity = 1800;
+                servo = -1;
+            }
+
+            double[] returns = {rotate, velocity, servo};
+            return returns;
+    }
     public double getAngle(AprilTagDetection detectedId){
         if(detectedId == null){
             return 0.0;

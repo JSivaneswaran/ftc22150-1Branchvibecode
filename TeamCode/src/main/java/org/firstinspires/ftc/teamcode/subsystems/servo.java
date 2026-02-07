@@ -9,7 +9,7 @@ public class servo {
     private Servo rightServo;
     double step = 0.02;
     double position = 1;
-    double maxPos = 1;
+    public double maxPos = 0.64;
     double minPos = 0.4; // 1-0.6
 
     public void init(HardwareMap hardwareMap){
@@ -18,17 +18,17 @@ public class servo {
 
         rightServo.setDirection(Servo.Direction.REVERSE);
 
-        leftServo.setPosition(1.0);
-        rightServo.setPosition(1.0);//mechanical offset
+      //  leftServo.setPosition(1.0);
+      //  rightServo.setPosition(1.0);//mechanical offset
     }
 
     public void changePosition(int i){
 
         position += step * i;
 
-        if(i == 1){
-            position = 0.64;
-        }else if (i == -1){
+        if(i == -1){
+            position = maxPos;
+        }else if (i == 1){
             position = 1.0;
         }
 

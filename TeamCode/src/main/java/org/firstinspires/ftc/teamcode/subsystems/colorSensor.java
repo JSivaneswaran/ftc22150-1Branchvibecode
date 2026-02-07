@@ -60,13 +60,7 @@ public class colorSensor {
         return DetectedColor.UNKNOWN;
     }
 
-    /**
-     * Determines how many rotations the spindexer should make to align green balls
-     *
-     * @param colors The current colors in slots 0,1,2
-     * @param greenIndex The target index for green ball
-     * @return number of rotations (0-2)
-     */
+    
     public static int numSpin(DetectedColor[] colors, int greenIndex){
         int currentGreenIndex = 0;
         for(int i = 0; i < colors.length; i++){

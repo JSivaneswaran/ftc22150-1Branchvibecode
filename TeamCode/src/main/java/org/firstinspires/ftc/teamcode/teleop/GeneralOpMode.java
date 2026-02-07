@@ -1,7 +1,12 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import android.graphics.Color;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.subsystems.AprilTagWebcam;
 import org.firstinspires.ftc.teamcode.subsystems.colorSensor;
@@ -24,12 +29,14 @@ public class GeneralOpMode extends OpMode {
 
     // ----------
     private final int[] aprilTagIDs = {21, 22, 23};
-    private boolean aprilTagClosed = false;
+    private boolean blueSide = true;
     private double power = 0.3;
+    private VoltageSensor batteryVoltageSensor;
     private int currentPosition = 0;
-    private boolean intake = true; // true = proper, false = reverse
+    private boolean intake = false; // false = proper, true = reverse
     private boolean intakeMode = true; // reverse intak
 
+    private double velocity = 4500;
 
     private final colorSensor[][] module = {
             {new colorSensor(), new colorSensor()},
@@ -39,7 +46,7 @@ public class GeneralOpMode extends OpMode {
     private final String[][] colorSensorModules = {
             {"mod0_cs1", "mod0_cs2"},
             {"mod1_cs1", "mod1_cs2"},
-            {"cs1", "cs2"}
+            {"mod2_cs1", "mod2_cs2"}
     };
     private final int[][] greenMax = {
             {162, 165},
@@ -64,7 +71,8 @@ public class GeneralOpMode extends OpMode {
     };
 
     private int greenIndexGoal = -1;
-    private boolean auton = true;
+    private boolean auton = false;
+    private mecanumDrive ;
 
     @Override
     public void init() {
@@ -90,9 +98,7 @@ public class GeneralOpMode extends OpMode {
 
         updateDrive();
 
-        if (!aprilTagClosed) {
-            updateAprilTag();
-        }
+        updateAprilTag();
 
         updateIntake();
 
@@ -100,11 +106,9 @@ public class GeneralOpMode extends OpMode {
 
         updateServo();
 
-        spin.stopIfNeeded(currentPosition, power);
+        updateColor();
 
-        if (auton && intakeMode) {
-            updateSpindexerAutomation();
-        }
+        spin.stopIfNeeded(currentPosition, power);
 
         updateSpindexer();
 
@@ -152,7 +156,7 @@ public class GeneralOpMode extends OpMode {
     }
 
     public void updateIntake() {
-        if (gamepad1.right_bumper) {
+        if (gamepad1.dpadUpWasPressed()) {
             intake = !intake;
         }
 
@@ -164,25 +168,33 @@ public class GeneralOpMode extends OpMode {
         }
     }
 
-    public void updateSpindexerAutomation() {
-        updateColor();
+    public void updateBatteryVolt() {
+        double currentVolt = batteryVoltageSensor.getVoltage();
 
-        if (currentColor[0] != colorSensor.DetectedColor.UNKNOWN && spin.isAtTarget(currentPosition)) {
-
-            if (currentColor[2] != colorSensor.DetectedColor.UNKNOWN) {
-                intakeMode = false;
-                int rotations = colorSensor.numSpin(currentColor, greenIndexGoal);
-                currentPosition = spin.rotate(rotations, currentPosition, 0.3);
-            } else {
-                colorSensor.DetectedColor temp = currentColor[0];
-                currentColor[0] = currentColor[2];
-                currentColor[2] = currentColor[1];
-                currentColor[1] = temp;
-
-                currentPosition = spin.rotate(1, currentPosition, 0.3);
-            }
+        if (currentVolt < 9.0) {
+            spin.stop();
         }
     }
+
+//    public void updateSpindexerAutomation() {
+//        updateColor();
+//
+//        if (currentColor[0] != colorSensor.DetectedColor.UNKNOWN && spin.isAtTarget(currentPosition)) {
+//
+//            if (currentColor[2] != colorSensor.DetectedColor.UNKNOWN) {
+//                intakeMode = false;
+//                int rotations = colorSensor.numSpin(currentColor, greenIndexGoal);
+//                currentPosition = spin.rotate(rotations, currentPosition, 0.3);
+//            } else {
+//                colorSensor.DetectedColor temp = currentColor[0];
+//                currentColor[0] = currentColor[2];
+//                currentColor[2] = currentColor[1];
+//                currentColor[1] = temp;
+//
+//                currentPosition = spin.rotate(1, currentPosition, 0.3);
+//            }
+//        }
+//    }
 
     public void updateColor() { // update all 3 rather than 1
         for (int i = 0; i < 3; i++) {
@@ -201,40 +213,79 @@ public class GeneralOpMode extends OpMode {
 
     public void updateShooter() {
         if (gamepad1.right_trigger > 0.1) {
-            shooter.runShooter(gamepad1.right_trigger);
-
-            if (spin.isAtTarget(currentPosition)) {
-                currentPosition = spin.shoot(currentPosition, 0.2);
-            }
+            shooter.runShooter(gamepad1.right_trigger, velocity);
         } else {
-            shooter.runShooter(0);
+            shooter.stop();
+        }
+
+        if (gamepad1.right_bumper) {
+            currentPosition = spin.shoot(currentPosition, 0.2);
         }
 
         if (gamepad1.x) {
-            webcam.setCameraOn();
-            aprilTagClosed = false;
 
-            AprilTagDetection id20 = webcam.getTagId(20);
-            if (id20 != null) {
-                double x = webcam.getX(id20);
-                double y = webcam.getY(id20);
+            double[] values = webcam.AutoAlign(blueSide);
+            drive.fieldOrient(0, 0, values[0]);
+            velocity = values[1];
+            servo.changePosition((int)values[2]);
+        }
 
-                if (x + 10 > 5) {
-                    drive.fieldOrient(0, 0, 0.2);
-                } else if (x + 10 < -5) {
-                    drive.fieldOrient(0, 0, -0.2);
-                }
+        if(gamepad1.dpadRightWasPressed()){
+            velocity = 1800;
+            servo.changePosition(-1);
+        }
+    }
+
+    public void AutoAlign() {
+        AprilTagDetection id20 = webcam.getTagId(20);
+        AprilTagDetection id24 = webcam.getTagId(24);
+        if (id20 != null && blueSide ) {
+            double x = webcam.getX(id20);
+            double y = webcam.getY(id20);
+
+            if (x + 10 > 5) {
+                drive.fieldOrient(0, 0, 0.2);
+            } else if (x + 10 < -5) {
+                drive.fieldOrient(0, 0, -0.2);
             }
-        } else {
-            webcam.setCameraOff();
-            aprilTagClosed = true;
+
+            if (y > 200){
+                velocity = 4500;
+                servo.changePosition(1);
+            }else if(y > 150){
+                velocity = 2500;
+                servo.changePosition(-1);
+            }else{
+                velocity = 1800;
+                servo.changePosition(-1);
+            }
+        }else if (id24 != null){
+            double x = webcam.getX(id24);
+            double y = webcam.getY(id24);
+
+            if (x + 10 > 5) {
+                drive.fieldOrient(0, 0, 0.2);
+            } else if (x + 10 < -5) {
+                drive.fieldOrient(0, 0, -0.2);
+            }
+
+            if (y > 200){
+                velocity = 4500;
+                servo.changePosition(1);
+            }else if(y > 150){
+                velocity = 2500;
+                servo.changePosition(-1);
+            }else{
+                velocity = 1800;
+                servo.changePosition(-1);
+            }
         }
     }
 
     public void updateSpindexer() {
-        if (gamepad2.dpadLeftWasPressed()) {
-            auton = !auton;
-        }
+//        if (gamepad2.dpadLeftWasPressed()) {
+//            auton = !auton;
+//        }
 
         if (gamepad2.dpadRightWasPressed() || gamepad1.dpadRightWasPressed()) {
             currentPosition = spin.resetRotation(currentPosition, 0.2);
@@ -254,9 +305,6 @@ public class GeneralOpMode extends OpMode {
             intakeMode = true;
         }
 
-        if (gamepad2.rightBumperWasPressed() || gamepad1.rightBumperWasPressed()) {
-            currentPosition = spin.shoot(currentPosition, 0.2);
-        }
     }
 
     public void updateAprilTag() {
@@ -266,17 +314,11 @@ public class GeneralOpMode extends OpMode {
             webcam.display(tag);
             if(tag != null){
                 greenIndexGoal = i;
-                webcam.setCameraOff();
-                aprilTagClosed = true;
                 break;
             }
         }
     }
 
-    public void updateServo(){
-        if (gamepad2.dpad_up) servo.changePosition(1);
-        else if (gamepad2.dpad_down) servo.changePosition(-1);
-    }
 
     public void updateAllTelemetry(){
         telemetry.addData("Spindexer Busy", spin.isAtTarget(currentPosition));
@@ -292,6 +334,18 @@ public class GeneralOpMode extends OpMode {
         telemetry.addLine("Servo Positions:");
         telemetry.addData("Right Servo", servo.getRightPos());
         telemetry.addData("Left Servo", servo.getLeftPos());
+
+    }
+
+    public void updateServo(){
+        int i = -1;
+        if(servo.getRightPos() > 0.8){
+            i = 1;
+        }
+
+        if (gamepad1.dpad_left) {
+            servo.changePosition(i);
+        }
     }
 
     @Override

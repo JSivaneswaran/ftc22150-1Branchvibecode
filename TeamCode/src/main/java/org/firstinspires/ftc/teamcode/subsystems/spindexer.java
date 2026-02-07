@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class spindexer {
@@ -29,6 +30,10 @@ public class spindexer {
         return setTarget(newPosition, power, 1);
     }
 
+    public int shoot(int currentPosition, double power) {
+        int newPosition = currentPosition - (int)((ONE_REV_TICKS) / 6);
+        return setTarget(newPosition, power, 1);
+    }
     public int reset(double power) {
         return setTarget(0, power, 1);
     }
@@ -37,11 +42,6 @@ public class spindexer {
         int tick = getTickCount() / rotateOne * rotateOne;
         int target = (getTickCount() < currentPosition) ? tick : tick + rotateOne;
         return setTarget(target, power, 1);
-    }
-
-    public int shoot(int currentPosition, double power) {
-        int newPosition = currentPosition - (int)(ONE_REV_TICKS / 6);
-        return setTarget(newPosition, power, 3);
     }
 
     public void stopIfNeeded(int targetPosition, double power) {

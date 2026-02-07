@@ -19,6 +19,7 @@ public class colorOp extends OpMode {
     colorSensor c = new colorSensor();
     colorSensor c1 = new colorSensor();
 
+
     @Override
     public void init() {
         c.init(hardwareMap, colorSensorMod0[0], 162, 195,0.06);
@@ -27,6 +28,7 @@ public class colorOp extends OpMode {
 
     @Override
     public void loop() {
+
         //telemetry.addData("color overall", c.getDetectedColor(c , c1,telemetry));
 
         NormalizedRGBA colors = c.sensor.getNormalizedColors();
@@ -36,6 +38,7 @@ public class colorOp extends OpMode {
         Color.colorToHSV(colors.toColor(), hsvValues1);
         float[] hsvValues2 = new float[3];
         Color.colorToHSV(colors2.toColor(), hsvValues2);
+
 
 
         telemetry.addData("Module 0 CS", 0);
