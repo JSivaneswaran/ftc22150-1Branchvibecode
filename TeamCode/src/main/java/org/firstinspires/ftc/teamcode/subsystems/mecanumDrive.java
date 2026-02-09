@@ -10,7 +10,7 @@ public class mecanumDrive {
 
     private DcMotor frontRightMotor, backRightMotor, frontLeftMotor, backLeftMotor;
     private IMU imu;
-    private double maxSpeed = 1.0;
+    private double maxSpeed = 1.5;
 
     public void init(HardwareMap hardwareMap) {
 

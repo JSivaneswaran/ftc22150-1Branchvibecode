@@ -113,7 +113,7 @@ public class GeneralOpMode extends OpMode {
 
         updateAllTelemetry();
 
-        updateBatteryVolt();
+       // updateBatteryVolt();
 
         if(gamepad2.aWasPressed()){
             currentPosition = spin.setTarget(currentPosition + 5, 0.2, 1);
@@ -229,9 +229,13 @@ public class GeneralOpMode extends OpMode {
         if (gamepad1.x) {
 
             double[] values = webcam.AutoAlign(blueSide);
-            drive.fieldOrient(0, 0, values[0]);
-            velocity = values[1];
-            servo.changePosition((int)values[2]);
+
+            boolean check = (webcam.getTagId(24) != null && !blueSide) || (webcam.getTagId(20) != null && blueSide);
+            if(check) {
+                drive.fieldOrient(0, 0, values[0]);
+                velocity = values[1];
+                servo.changePosition((int) values[2]);
+            }
         }
 
         if(gamepad1.dpadRightWasPressed()){
@@ -296,12 +300,12 @@ public class GeneralOpMode extends OpMode {
         }
 
         if (gamepad1.bWasPressed()) {
-            currentPosition = spin.rotate(1, currentPosition, 0.2);
+            currentPosition = spin.rotate(1, currentPosition, 0.15);
         }
 
         else if (gamepad1.yWasPressed()) {
             int rotations = colorSensor.numSpin(currentColor, greenIndexGoal);
-            currentPosition = spin.rotate(rotations, currentPosition, 0.2);
+            currentPosition = spin.rotate(rotations, currentPosition, 0.15);
         }
 
         else if (gamepad1.aWasPressed()) {

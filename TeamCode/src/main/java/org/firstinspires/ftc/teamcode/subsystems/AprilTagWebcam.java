@@ -87,12 +87,18 @@ public class AprilTagWebcam {
                 x = getX(id24);
                 y = getY(id24);
             }
-
-            if (x + 10 > 5) {
-                rotate = 0.5;
-            } else if (x + 10 < -5) {
-                rotate = -0.5;
+            else{
+                return null;
             }
+
+            if (x + 10 > 10) {
+                rotate = 0.3;
+            } else if (x + 10 < -10) {
+                rotate = -0.3;
+            }else{
+                rotate = 0;
+            }
+
             if (y > 200){
                 velocity = 4500;
                 servo = 1;

@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.subsystems.spindexer;
 import org.firstinspires.ftc.teamcode.subsystems.servo;
 import org.firstinspires.ftc.teamcode.teleop.GeneralOpMode;
 
-@Autonomous(name = "farAuto", group = "Autonomous")
+@Autonomous(name = "RedAuto", group = "Autonomous")
 public class farAuto extends OpMode {
 
     private ElapsedTime spinUp = new ElapsedTime();
@@ -23,15 +23,11 @@ public class farAuto extends OpMode {
     private intake mainIntake = new intake();
     private mecanumDrive drive = new mecanumDrive();
     private servo hood = new servo();
+    int count = 0;
 
     private colorSensor.DetectedColor[] currentColor = new colorSensor.DetectedColor[3];
 
-    private int greenIndexGoal = -1;
     private int currentPosition = 0;
-    private boolean sorted = false;
-    private boolean shotFirst = false;
-    private boolean shotSecond = false;
-    private boolean shotThird = false;
     private boolean autoMove = true;
 
     @Override
@@ -59,30 +55,48 @@ public class farAuto extends OpMode {
             hood.changePosition(1);
         }
 
-        if (autoMove) {
-            for (int i = 0; i < 100; i++) {
-                drive.setPower(0.5);
-                drive.fieldOrient(0.2, 0.2, 0);
+        aprilTagWebcam.update();
+
+        double [] d = aprilTagWebcam.AutoAlign(false);
+
+
+        boolean check = (aprilTagWebcam.getTagId(24) != null);
+
+       if(check) {
+           drive.fieldOrient(0, 0, d[0]/5);
+       }else{
+           drive.fieldOrient(0,0,0);
+       }
+
+            if (count >= 4) {
+                shooter.stop();
+
+                if (autoMove) {
+                    for (int i = 0; i < 50; i++) {
+                        drive.setPower(0.5);
+                        drive.fieldOrient(0.2, 0.2, 0);
+                    }
+                    autoMove = !autoMove;
+                }
+
+                if (!autoMove) {
+                    drive.stop();
+                    drive.fieldOrient(0, 0, 0);
+                    return;
+                }
             }
-            autoMove = !autoMove;
-        }
 
-        if (!autoMove) {
-            drive.stop();
-            drive.fieldOrient(0,0,0);
-        }
-        double[] d = aprilTagWebcam.AutoAlign(true);
+            spinUp.reset();
+            hood.changePosition(1);
+            shooter.runShooter(4500);
 
-        spinUp.reset();
-        drive.fieldOrient(0, 0, d[0]);
-        hood.changePosition((int)d[2]);
-        shooter.runShooter(d[1]);
+            while (spinUp.seconds() < 3.0) {
+                //literally just waste your time
+            }
 
-        while(spinUp.seconds() <3.0) {
-            //literally just waste your time
-        }
+            currentPosition = spin.shoot(currentPosition, 0.3);
+            count += 1;
 
-        currentPosition = spin.shoot(currentPosition, 0.3);
 
         //shoot spindexer twice
 
